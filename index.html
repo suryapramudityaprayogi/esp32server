@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><body style="text-align:center;font-family:Arial">
+<h2>Kontrol Relay Online</h2>
+<button onclick="kirim(1,1)">Relay 1 ON</button>
+<button onclick="kirim(1,0)">Relay 1 OFF</button>
+<script>
+async function kirim(num, val){
+  // Ambil dulu data lama, update 1 relay aja
+  let res = await fetch('https://relay-kamu-default-rtdb.firebaseio.com/relay.json');
+  let data = await res.json() || {};
+  data['relay'+num] = val;
+  await fetch('https://relay-kamu-default-rtdb.firebaseio.com/relay.json', {
+    method: 'PUT', body: JSON.stringify(data)
+  });
+  alert('Terkirim!');
+}
+</script>
+</body></html>
