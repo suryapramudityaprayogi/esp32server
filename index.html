@@ -2,32 +2,231 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kontrol 4 Relay - Online</title>
 <style>
-  body{font-family:Arial;background:#111;color:white;text-align:center;margin:0;padding:20px}
-  h2{color:#00ff88;margin:5px}
-  p{color:#aaa;font-size:13px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:400px;margin:15px auto}
-  .card{background:#222;padding:15px;border-radius:15px;border:2px solid #333}
-  .card.on{border-color:#28a745}
-  .status{font-size:28px;margin:5px}
-  .pin{font-size:12px;color:#888}
-  button{width:100%;padding:12px;border:none;border-radius:10px;color:white;font-size:16px;font-weight:bold;cursor:pointer}
-  .btn-on{background:#28a745}
-  .btn-off{background:#dc3545}
-  .btn-all{max-width:400px;margin:5px auto;display:block}
-  #koneksi{font-size:12px;padding:5px 10px;border-radius:20px;background:#333;display:inline-block}
+  :root {
+    --bg-color: #0a0a0a;          /* Hitam pekat */
+    --card-bg: #141414;           /* Hitam sedikit lebih terang untuk kartu */
+    --border-color: #262626;      /* Garis batas gelap */
+    --text-main: #f0f0f0;         /* Teks putih redup */
+    --text-muted: #888888;        /* Teks abu-abu untuk deskripsi */
+    --gold-accent: #c5a059;       /* Emas elegan (tidak mencolok) */
+    --gold-dim: rgba(197, 160, 89, 0.15);
+  }
+
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 500px; /* Ukuran optimal untuk panel kontrol */
+  }
+
+  /* Bagian Header */
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  
+  h2 {
+    color: var(--gold-accent);
+    font-weight: 400;
+    letter-spacing: 2px;
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* Indikator Status */
+  #koneksi-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  #koneksi {
+    font-size: 0.75rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+  .indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: 0.3s;
+  }
+  .indicator.online { background: #4caf50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); }
+  .indicator.offline { background: #f44336; box-shadow: 0 0 8px rgba(244, 67, 54, 0.5); }
+
+  /* Grid Relay */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  /* Kartu Relay */
+  .card {
+    background: var(--card-bg);
+    padding: 24px 15px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .card.on {
+    border-color: var(--gold-accent);
+    box-shadow: 0 8px 24px var(--gold-dim);
+  }
+
+  /* Ikon Power SVG */
+  .icon {
+    margin-bottom: 12px;
+    color: var(--border-color);
+    transition: all 0.3s ease;
+  }
+  .card.on .icon {
+    color: var(--gold-accent);
+    filter: drop-shadow(0 0 8px var(--gold-dim));
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .pin-info {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  /* Tombol Per-Relay */
+  .card button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .card:not(.on) button:hover {
+    border-color: var(--gold-accent);
+    color: var(--gold-accent);
+  }
+  .card.on button {
+    background: var(--gold-accent);
+    color: var(--bg-color);
+    border-color: var(--gold-accent);
+  }
+  .card.on button:hover {
+    background: #b38f4d; /* Emas sedikit lebih gelap saat hover */
+  }
+
+  /* Tombol Kontrol Global */
+  .global-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .btn-global {
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-main);
+  }
+  .btn-global.on {
+    border-color: var(--gold-accent);
+    color: var(--gold-accent);
+  }
+  .btn-global.on:hover {
+    background: var(--gold-dim);
+  }
+  .btn-global.off:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: #555;
+  }
+
+  /* Teks Terakhir Update */
+  #last {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Responsivitas Layar Sangat Kecil (HP kecil) */
+  @media (max-width: 360px) {
+    .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .global-controls { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-<h2>⚡ KONTROL 4 RELAY ESP32</h2>
-<p>Pin Relay: 15 | 2 | 4 | 16 • Tombol: 13 | 12 | 14 | 27</p>
-<span id="koneksi">● Menghubungkan...</span>
-<div class="grid" id="grid"></div>
-<button class="btn-all btn-on" onclick="setAll(1)">NYALAKAN SEMUA</button>
-<button class="btn-all btn-off" onclick="setAll(0)">MATIKAN SEMUA</button>
-<p id="last">Terakhir update: -</p>
+
+<div class="container">
+  <div class="header">
+    <h2>Kontrol Panel ESP32</h2>
+    <div class="subtitle">Sistem Manajemen 4 Relay IoT</div>
+  </div>
+
+  <div id="koneksi-wrapper">
+    <div id="koneksi">
+      <span class="indicator"></span> Menghubungkan...
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="global-controls">
+    <button class="btn-global on" onclick="setAll(1)">NYALAKAN SEMUA</button>
+    <button class="btn-global off" onclick="setAll(0)">MATIKAN SEMUA</button>
+  </div>
+
+  <p id="last">Terakhir update: -</p>
+</div>
 
 <script>
 const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
@@ -39,12 +238,17 @@ function render(){
   let html = "";
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
-    html += `<div class="card ${on?'on':''}">
-      <div class="status">${on?'💡':'⚫'}</div>
-      <b>Relay ${i}</b><br>
-      <span class="pin">Relay Pin GPIO ${pins[i-1]}<br>Tombol GPIO ${btnPins[i-1]}</span>
-      <p style="color:${on?'#28a745':'#dc3545'}">${on?'ON':'OFF'}</p>
-      <button class="${on?'btn-off':'btn-on'}" onclick="toggle(${i})">${on?'MATIKAN':'NYALAKAN'}</button>
+    html += `
+    <div class="card ${on ? 'on' : ''}">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12"></line>
+        </svg>
+      </div>
+      <div class="card-title">Relay ${i}</div>
+      <div class="pin-info">Pin ${pins[i-1]} &bull; Tombol ${btnPins[i-1]}</div>
+      <button onclick="toggle(${i})">${on ? 'MATIKAN' : 'NYALAKAN'}</button>
     </div>`;
   }
   document.getElementById('grid').innerHTML = html;
@@ -56,25 +260,27 @@ async function ambilData(){
     if(!res.ok) throw new Error("HTTP " + res.status);
     let j = await res.json();
     if(j){ data = j; }
-    document.getElementById('koneksi').innerHTML = "● Online - Terhubung ke Firebase";
-    document.getElementById('koneksi').style.background = "#28a745";
+    
+    // Update UI Koneksi Berhasil
+    document.getElementById('koneksi').innerHTML = '<span class="indicator online"></span> Online &bull; Terhubung';
     document.getElementById('last').innerHTML = "Terakhir update: " + new Date().toLocaleTimeString();
     render();
   }catch(e){
-    document.getElementById('koneksi').innerHTML = "● Offline - " + e.message;
-    document.getElementById('koneksi').style.background = "#dc3545";
+    // Update UI Koneksi Gagal
+    document.getElementById('koneksi').innerHTML = `<span class="indicator offline"></span> Offline &bull; ${e.message}`;
   }
 }
 
 async function kirim(){
+  // Saat mengirim, tampilkan efek loading sementara di UI (opsional, render berjalan duluan)
   await fetch(FIREBASE_URL, {method:'PUT', body: JSON.stringify(data)});
   ambilData();
 }
 
 function toggle(num){
   data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
-  render();
-  kirim();
+  render(); // Update UI langsung agar terasa responsif
+  kirim();  // Sinkronkan ke Firebase
 }
 
 function setAll(val){
@@ -86,4 +292,5 @@ function setAll(val){
 ambilData();
 setInterval(ambilData, 1000);
 </script>
-</body></html>
+</body>
+</html>
