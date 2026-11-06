@@ -3,219 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scrapbook Relay Control</title>
+<title>Smart Relay Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-/* Menggunakan font monospace/typewriter untuk kesan retro/buku harian */
-<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --dot-color: #d3c7b6; /* Warna polkadot[span_3](start_span)[span_3](end_span) */
-    --bg-color: #1a1e29; /* Warna dasar navy[span_4](start_span)[span_4](end_span) */
-    --gingham-red: #8b1e1e; /* Merah kotak-kotak[span_5](start_span)[span_5](end_span) */
-    --gingham-cream: #f4ebd9; /* Krem kotak-kotak[span_6](start_span)[span_6](end_span) */
-    --polaroid-bg: #fcfcfc; /* Warna kertas polaroid[span_7](start_span)[span_7](end_span) */
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --card-hover: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --sky-blue: #38bdf8;
+    --sky-glow: rgba(56, 189, 248, 0.25);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
   body {
-    font-family: 'Courier Prime', monospace;
-    /* Pola Polkadot CSS[span_8](start_span)[span_8](end_span) */
-    background-color: var(--bg-color);
-    background-image: 
-      radial-gradient(var(--dot-color) 15%, transparent 16%),
-      radial-gradient(var(--dot-color) 15%, transparent 16%);
-    background-size: 40px 40px;
-    background-position: 0 0, 20px 20px;
-    
-    color: #000;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
     display: flex; flex-direction: column; align-items: center;
     min-height: 100vh; padding: 40px 20px;
   }
 
-  .container { 
-    width: 100%; max-width: 550px; 
-    background: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    border-radius: 10px;
-    backdrop-filter: blur(2px);
-  }
+  .container { width: 100%; max-width: 500px; }
 
-  /* Header ala Scrapbook */
-  .header { 
-    text-align: center; margin-bottom: 25px; 
-    background: #fff;
-    padding: 15px;
-    border: 3px solid #000;
-    transform: rotate(-2deg);
-    box-shadow: 6px 6px 0px #000;
-  }
-  h2 {
-    font-weight: 700;
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .subtitle { font-weight: 400; font-size: 0.9rem; margin-top: 5px; }
+  /* Header Minimalis */
+  .header { text-align: center; margin-bottom: 30px; }
+  h2 { font-weight: 700; font-size: 1.5rem; letter-spacing: 0.5px; }
+  .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
 
-  /* Indikator Status */
+  /* Indikator Status Elegan */
   #koneksi-wrapper {
-    display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;
+    display: flex; justify-content: center; gap: 12px; margin-bottom: 35px;
   }
   .status-badge {
-    font-size: 0.8rem; font-weight: 700; padding: 8px 15px;
-    background: #fff; border: 2px solid #000;
-    display: inline-flex; align-items: center; gap: 8px;
-    box-shadow: 3px 3px 0px #000;
-    transform: rotate(1deg);
+    font-size: 0.75rem; font-weight: 600; padding: 6px 12px; border-radius: 30px;
+    background: var(--card-bg); color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+    transition: 0.3s;
   }
-  .indicator { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #000; }
-  .indicator.online { background: #4caf50; }
-  .indicator.offline { background: #f44336; }
-  .indicator.checking { background: #ff9800; }
+  .indicator { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
+  .indicator.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+  .indicator.offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+  .indicator.checking { background: #f59e0b; }
 
-  /* Grid Relay (Kolase Polaroid)[span_9](start_span)[span_9](end_span) */
+  /* Grid Relay */
   .grid { 
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-    gap: 25px; margin-bottom: 40px; 
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 16px; margin-bottom: 30px; 
   }
-  
-  /* Desain Polaroid[span_10](start_span)[span_10](end_span) */
+
+  /* KARTU SEBAGAI TOMBOL UTAMA */
   .card {
-    background: var(--polaroid-bg); 
-    padding: 10px 10px 45px 10px; /* Bawah lebih tebal ala polaroid */
-    border: 1px solid #ccc;
-    box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column; align-items: center; text-align: center;
     position: relative;
-    transition: all 0.3s ease;
-  }
-  
-  /* Efek Rotasi Acak ala Scrapbook */
-  .card:nth-child(odd) { transform: rotate(-3deg); }
-  .card:nth-child(even) { transform: rotate(4deg); }
-  .card:nth-child(3) { transform: rotate(-4deg); }
-  
-  /* Efek Selotip di atas foto */
-  .card::before {
-    content: "";
-    position: absolute;
-    top: -12px; left: 50%;
-    transform: translateX(-50%) rotate(-5deg);
-    width: 60px; height: 25px;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(0,0,0,0.1);
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-    backdrop-filter: blur(2px);
-    z-index: 10;
-  }
-
-  /* Kotak foto di dalam polaroid */
-  .photo-frame {
-    width: 100%;
-    height: 100px;
-    background: #111;
-    margin-bottom: 15px;
-    display: flex; justify-content: center; align-items: center;
-    border: 1px solid #333;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* Pola Gingham saat Relay ON[span_11](start_span)[span_11](end_span) */
-  .card.on .photo-frame {
-    background-image: 
-      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139, 30, 30, 0.2) 10px, rgba(139, 30, 30, 0.2) 20px),
-      repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(139, 30, 30, 0.2) 10px, rgba(139, 30, 30, 0.2) 20px);
-    background-color: var(--gingham-cream);
-  }
-
-  .icon { color: #fff; transition: all 0.3s; z-index: 2; }
-  .card.on .icon { color: var(--gingham-red); }
-
-  .card-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 5px; color: #000; }
-  .pin-info { font-size: 0.75rem; font-weight: 400; color: #555; }
-
-  /* Tombol Per-Relay (seperti coretan spidol) */
-  .card button {
-    font-family: 'Courier Prime', monospace;
-    position: absolute;
-    bottom: 10px;
-    background: transparent;
-    border: none;
-    color: #000;
-    font-size: 1rem;
-    font-weight: 700;
+    background: var(--card-bg);
+    padding: 25px 20px;
+    border-radius: 20px;
+    border: 2px solid transparent;
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-style: wavy;
-    text-decoration-color: #888;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden;
   }
-  .card.on button { color: var(--gingham-red); text-decoration-color: var(--gingham-red); }
-
-  /* Tombol Kontrol Global (Motif Kotak Merah)[span_12](start_span)[span_12](end_span) */
-  .global-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
   
+  /* Efek Hover & Klik */
+  .card:hover { background: var(--card-hover); transform: translateY(-3px); }
+  .card:active { transform: scale(0.96); }
+
+  /* Status Aktif (Menyala Sky Blue) */
+  .card.on {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-color: var(--sky-blue);
+    box-shadow: 0 10px 25px var(--sky-glow), inset 0 0 15px var(--sky-glow);
+  }
+
+  /* Lingkaran Indikator di Pojok Kartu */
+  .state-dot {
+    position: absolute; top: 15px; right: 15px;
+    width: 8px; height: 8px; border-radius: 50%; background: #475569;
+    transition: 0.3s;
+  }
+  .card.on .state-dot { background: var(--sky-blue); box-shadow: 0 0 10px var(--sky-blue); }
+
+  /* Ikon & Teks */
+  .icon { color: #64748b; margin-bottom: 12px; transition: 0.3s; }
+  .card.on .icon { color: var(--sky-blue); filter: drop-shadow(0 0 5px var(--sky-blue)); }
+  
+  .card-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 2px; }
+  .pin-info { font-size: 0.7rem; color: var(--text-muted); font-weight: 300; margin-bottom: 15px; }
+  
+  .state-text { 
+    font-size: 1.2rem; font-weight: 700; color: #64748b; 
+    letter-spacing: 1px; transition: 0.3s;
+  }
+  .card.on .state-text { color: var(--text-main); }
+
+  /* Tombol Global Minimalis */
+  .global-controls { display: flex; gap: 12px; margin-bottom: 20px; }
   .btn-global {
-    font-family: 'Courier Prime', monospace; padding: 15px; 
-    font-size: 0.9rem; font-weight: 700; cursor: pointer; 
-    border: 3px solid #000; box-shadow: 4px 4px 0px #000;
-    text-transform: uppercase;
+    flex: 1; padding: 14px; border-radius: 14px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: 0.3s; border: none; font-family: 'Inter', sans-serif;
   }
-  .btn-global.on { 
-    background-color: var(--gingham-cream);
-    /* Motif Kotak-kotak merah[span_13](start_span)[span_13](end_span) */
-    background-image: 
-      linear-gradient(90deg, rgba(139,30,30,0.2) 50%, transparent 50%),
-      linear-gradient(rgba(139,30,30,0.2) 50%, transparent 50%);
-    background-size: 20px 20px;
-    color: #000; 
-  }
-  .btn-global.off { 
-    background: #111; 
-    color: #fff; 
-  }
-  .btn-global:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000; }
+  .btn-global.on { background: var(--sky-blue); color: var(--bg-dark); }
+  .btn-global.on:hover { background: #0ea5e9; transform: translateY(-2px); }
+  .btn-global.off { background: transparent; border: 1px solid #334155; color: var(--text-muted); }
+  .btn-global.off:hover { background: #334155; color: var(--text-main); transform: translateY(-2px); }
 
-  #last { 
-    text-align: center; font-size: 0.85rem; font-weight: 700; 
-    color: var(--dot-color); margin-top: 20px;
-    background: rgba(0,0,0,0.5); padding: 5px 10px; display: inline-block;
-  }
+  #last { text-align: center; font-size: 0.7rem; color: #475569; margin-top: 10px; }
 
-  @media (max-width: 400px) {
-    .grid { grid-template-columns: 1fr 1fr; gap: 15px; }
-    .global-controls { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 360px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h2>Kontrol ESP32</h2>
-    <div class="subtitle">Scrapbook Edition</div>
+    <h2>Smart Relay</h2>
+    <div class="subtitle">IoT Management System</div>
   </div>
 
   <div id="koneksi-wrapper">
-    <div id="koneksi-web" class="status-badge">
-      <span class="indicator"></span> DB: Connect
-    </div>
-    <div id="koneksi-esp" class="status-badge">
-      <span class="indicator"></span> ESP: Status
-    </div>
+    <div id="koneksi-web" class="status-badge"><span class="indicator"></span> DB Sync</div>
+    <div id="koneksi-esp" class="status-badge"><span class="indicator"></span> Device</div>
   </div>
 
   <div class="grid" id="grid"></div>
 
   <div class="global-controls">
-    <button class="btn-global on" onclick="setAll(1)">NYALAKAN SEMUA</button>
-    <button class="btn-global off" onclick="setAll(0)">MATIKAN SEMUA</button>
+    <button class="btn-global on" onclick="setAll(1)">ALL ON</button>
+    <button class="btn-global off" onclick="setAll(0)">ALL OFF</button>
   </div>
 
-  <center><p id="last">Last update: -</p></center>
+  <p id="last">Sync: -</p>
 </div>
 
 <script>
@@ -232,19 +156,19 @@ function render(){
   let html = "";
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
+    // KARTU DIJADIKAN SATU TOMBOL PENUH (onclick di div)
     html += `
-    <div class="card ${on ? 'on' : ''}">
-      <div class="photo-frame">
-        <div class="icon">
-          <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-            <line x1="12" y1="2" x2="12" y2="12"></line>
-          </svg>
-        </div>
+    <div class="card ${on ? 'on' : ''}" onclick="toggle(${i})">
+      <div class="state-dot"></div>
+      <div class="icon">
+        <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12"></line>
+        </svg>
       </div>
       <div class="card-title">Relay ${i}</div>
-      <div class="pin-info">P${pins[i-1]} - B${btnPins[i-1]}</div>
-      <button onclick="toggle(${i})">${on ? 'MATIKAN' : 'NYALAKAN'}</button>
+      <div class="pin-info">P${pins[i-1]} • B${btnPins[i-1]}</div>
+      <div class="state-text">${on ? 'ON' : 'OFF'}</div>
     </div>`;
   }
   document.getElementById('grid').innerHTML = html;
@@ -253,11 +177,10 @@ function render(){
 async function ambilData(){
   try{
     let res = await fetch(FIREBASE_URL);
-    if(!res.ok) throw new Error("HTTP " + res.status);
+    if(!res.ok) throw new Error("HTTP Error");
     let j = await res.json();
     if(j) { 
       data = Object.assign(data, j);
-      
       if (j.heartbeat !== undefined) {
         if (lastHeartbeatValue === null) {
           lastHeartbeatValue = j.heartbeat;
@@ -270,26 +193,25 @@ async function ambilData(){
       }
     }
     
-    document.getElementById('koneksi-web').innerHTML = '<span class="indicator online"></span> DB: Online';
+    document.getElementById('koneksi-web').innerHTML = '<span class="indicator online"></span> DB Sync';
     
     let timeDiff = Date.now() - lastHeartbeatTime;
     if (timeDiff > 12000) espIsOnline = false;
 
-    let espStatusHtml = "";
     if (!espIsOnline && timeDiff <= 12000) {
-      espStatusHtml = '<span class="indicator checking"></span> ESP: Mengecek';
+      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator checking"></span> Checking';
     } else if (espIsOnline) {
-      espStatusHtml = '<span class="indicator online"></span> ESP: Online';
+      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator online"></span> Device Online';
     } else {
-      espStatusHtml = '<span class="indicator offline"></span> ESP: Offline';
+      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator offline"></span> Device Offline';
     }
-    document.getElementById('koneksi-esp').innerHTML = espStatusHtml;
 
-    document.getElementById('last').innerHTML = "Last update: " + new Date().toLocaleTimeString();
+    let d = new Date();
+    document.getElementById('last').innerHTML = "Last sync: " + d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + ":" + d.getSeconds().toString().padStart(2,'0');
     render();
   }catch(e){
-    document.getElementById('koneksi-web').innerHTML = `<span class="indicator offline"></span> DB: Error`;
-    document.getElementById('koneksi-esp').innerHTML = `<span class="indicator offline"></span> ESP: Error`;
+    document.getElementById('koneksi-web').innerHTML = `<span class="indicator offline"></span> DB Error`;
+    document.getElementById('koneksi-esp').innerHTML = `<span class="indicator offline"></span> No Device`;
   }
 }
 
@@ -298,19 +220,19 @@ async function kirim(){
     relay1: data.relay1, relay2: data.relay2, 
     relay3: data.relay3, relay4: data.relay4
   };
+  // Optimistic UI: render dulu biar terasa cepat tanpa nunggu server
+  render();
   await fetch(FIREBASE_URL, {method:'PATCH', body: JSON.stringify(payload)});
   ambilData();
 }
 
 function toggle(num){
   data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
-  render(); 
   kirim();  
 }
 
 function setAll(val){
   for(let i=1;i<=4;i++) data['relay'+i] = val;
-  render();
   kirim();
 }
 
