@@ -3,20 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Relay Dashboard</title>
+<title>IoT Professional Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
     --bg-dark: #0f172a;
-    --card-bg: #1e293b;
-    --card-hover: #334155;
+    --surface: #1e293b;
+    --surface-hover: #334155;
+    --border: #334155;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --sky-blue: #38bdf8;
-    --sky-glow: rgba(56, 189, 248, 0.25);
+    --primary: #38bdf8; /* Sky Blue Accent */
+    --primary-glow: rgba(56, 189, 248, 0.2);
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,121 +29,200 @@
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
-    display: flex; flex-direction: column; align-items: center;
-    min-height: 100vh; padding: 40px 20px;
+    line-height: 1.5;
   }
 
-  .container { width: 100%; max-width: 500px; }
-
-  /* Header Minimalis */
-  .header { text-align: center; margin-bottom: 30px; }
-  h2 { font-weight: 700; font-size: 1.5rem; letter-spacing: 0.5px; }
-  .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
-
-  /* Indikator Status Elegan */
-  #koneksi-wrapper {
-    display: flex; justify-content: center; gap: 12px; margin-bottom: 35px;
+  /* Navbar */
+  .navbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  .status-badge {
-    font-size: 0.75rem; font-weight: 600; padding: 6px 12px; border-radius: 30px;
-    background: var(--card-bg); color: var(--text-muted);
-    display: flex; align-items: center; gap: 6px;
-    transition: 0.3s;
-  }
-  .indicator { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
-  .indicator.online { background: #10b981; box-shadow: 0 0 8px #10b981; }
-  .indicator.offline { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-  .indicator.checking { background: #f59e0b; }
+  .navbar-brand { font-weight: 700; font-size: 1.25rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+  .navbar-brand svg { color: var(--primary); }
 
-  /* Grid Relay */
-  .grid { 
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-    gap: 16px; margin-bottom: 30px; 
+  /* Main Container */
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+
+  /* Section Title */
+  .section-title { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Metrics Grid (Top) */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;
+  }
+  .metric-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .metric-info h3 { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+  .metric-info p { font-size: 1.5rem; font-weight: 700; margin-top: 5px; }
+  .metric-icon { 
+    width: 48px; height: 48px; border-radius: 12px; background: rgba(56, 189, 248, 0.1); 
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
   }
 
-  /* KARTU SEBAGAI TOMBOL UTAMA */
-  .card {
-    position: relative;
-    background: var(--card-bg);
-    padding: 25px 20px;
-    border-radius: 20px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    overflow: hidden;
+  /* Main Dashboard Layout */
+  .dashboard-layout {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 30px;
+  }
+
+  /* Relay Controls Grid */
+  .controls-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
   }
   
-  /* Efek Hover & Klik */
-  .card:hover { background: var(--card-hover); transform: translateY(-3px); }
-  .card:active { transform: scale(0.96); }
-
-  /* Status Aktif (Menyala Sky Blue) */
-  .card.on {
-    background: linear-gradient(145deg, #1e293b, #0f172a);
-    border-color: var(--sky-blue);
-    box-shadow: 0 10px 25px var(--sky-glow), inset 0 0 15px var(--sky-glow);
+  .relay-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 25px 20px;
+    cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
   }
-
-  /* Lingkaran Indikator di Pojok Kartu */
-  .state-dot {
-    position: absolute; top: 15px; right: 15px;
-    width: 8px; height: 8px; border-radius: 50%; background: #475569;
-    transition: 0.3s;
+  .relay-card:hover { border-color: #475569; transform: translateY(-2px); }
+  .relay-card.on {
+    background: linear-gradient(145deg, #1e293b, #0f172a); border-color: var(--primary);
+    box-shadow: 0 10px 30px var(--primary-glow);
   }
-  .card.on .state-dot { background: var(--sky-blue); box-shadow: 0 0 10px var(--sky-blue); }
-
-  /* Ikon & Teks */
-  .icon { color: #64748b; margin-bottom: 12px; transition: 0.3s; }
-  .card.on .icon { color: var(--sky-blue); filter: drop-shadow(0 0 5px var(--sky-blue)); }
   
-  .card-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 2px; }
-  .pin-info { font-size: 0.7rem; color: var(--text-muted); font-weight: 300; margin-bottom: 15px; }
+  .relay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .relay-icon { color: var(--text-muted); transition: 0.3s; }
+  .relay-card.on .relay-icon { color: var(--primary); filter: drop-shadow(0 0 8px var(--primary)); }
   
-  .state-text { 
-    font-size: 1.2rem; font-weight: 700; color: #64748b; 
-    letter-spacing: 1px; transition: 0.3s;
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: 0.3s; }
+  .relay-card.on .status-dot { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+
+  .relay-info h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+  .relay-info p { font-size: 0.8rem; color: var(--text-muted); }
+  .relay-state { font-size: 1.25rem; font-weight: 700; color: var(--text-muted); margin-top: 15px; }
+  .relay-card.on .relay-state { color: var(--text-main); }
+
+  /* Sidebar Panels (Right side) */
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 20px;
   }
-  .card.on .state-text { color: var(--text-main); }
-
-  /* Tombol Global Minimalis */
-  .global-controls { display: flex; gap: 12px; margin-bottom: 20px; }
-  .btn-global {
-    flex: 1; padding: 14px; border-radius: 14px; font-size: 0.85rem; font-weight: 600;
-    cursor: pointer; transition: 0.3s; border: none; font-family: 'Inter', sans-serif;
+  
+  /* Global Buttons */
+  .global-btn {
+    width: 100%; padding: 14px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px;
   }
-  .btn-global.on { background: var(--sky-blue); color: var(--bg-dark); }
-  .btn-global.on:hover { background: #0ea5e9; transform: translateY(-2px); }
-  .btn-global.off { background: transparent; border: 1px solid #334155; color: var(--text-muted); }
-  .btn-global.off:hover { background: #334155; color: var(--text-main); transform: translateY(-2px); }
+  .global-btn.primary { background: var(--primary); color: var(--bg-dark); }
+  .global-btn.primary:hover { background: #0ea5e9; }
+  .global-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+  .global-btn.secondary:hover { background: var(--surface-hover); }
 
-  #last { text-align: center; font-size: 0.7rem; color: #475569; margin-top: 10px; }
+  /* Activity Logs */
+  .log-list { list-style: none; margin-top: 15px; }
+  .log-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-time { color: var(--text-muted); font-size: 0.75rem; }
+  .log-action { font-weight: 500; }
+  .log-action.on-text { color: var(--primary); }
+  .log-action.off-text { color: var(--text-muted); }
+  .empty-log { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px 0; }
 
-  @media (max-width: 360px) { .grid { grid-template-columns: 1fr; } }
+  /* Status Colors */
+  .c-success { color: var(--success); }
+  .c-danger { color: var(--danger); }
+  .c-warning { color: var(--warning); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .dashboard-layout { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .controls-grid { grid-template-columns: 1fr; }
+    .container { padding: 15px; }
+  }
 </style>
 </head>
 <body>
 
+<nav class="navbar">
+  <div class="navbar-brand">
+    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+    </svg>
+    ESP32 Control Center
+  </div>
+  <div style="font-size: 0.85rem; color: var(--text-muted);" id="clock">00:00:00</div>
+</nav>
+
 <div class="container">
-  <div class="header">
-    <h2>Smart Relay</h2>
-    <div class="subtitle">IoT Management System</div>
+  
+  <!-- Metrics Section -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-info">
+        <h3>Server Database</h3>
+        <p id="db-status" class="c-warning">Menghubungkan...</p>
+      </div>
+      <div class="metric-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+      </div>
+    </div>
+    
+    <div class="metric-card">
+      <div class="metric-info">
+        <h3>Status Perangkat (ESP32)</h3>
+        <p id="esp-status" class="c-warning">Mengecek...</p>
+      </div>
+      <div class="metric-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-info">
+        <h3>Relay Aktif</h3>
+        <p id="active-count" style="color: var(--text-main);">0 / 4</p>
+      </div>
+      <div class="metric-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      </div>
+    </div>
   </div>
 
-  <div id="koneksi-wrapper">
-    <div id="koneksi-web" class="status-badge"><span class="indicator"></span> DB Sync</div>
-    <div id="koneksi-esp" class="status-badge"><span class="indicator"></span> Device</div>
+  <!-- Main Dashboard Layout -->
+  <div class="dashboard-layout">
+    
+    <!-- Left Column: Controls -->
+    <div>
+      <div class="section-title">Kontrol Relay Individu</div>
+      <div class="controls-grid" id="grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Right Column: Sidebar Panels -->
+    <div>
+      <div class="panel">
+        <div class="section-title">Kontrol Global</div>
+        <button class="global-btn primary" onclick="setAll(1)">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+          Hidupkan Semua
+        </button>
+        <button class="global-btn secondary" onclick="setAll(0)">
+          Matikan Semua
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">Riwayat Aktivitas</div>
+        <ul class="log-list" id="log-list">
+          <li class="empty-log">Belum ada aktivitas di sesi ini.</li>
+        </ul>
+      </div>
+    </div>
+
   </div>
-
-  <div class="grid" id="grid"></div>
-
-  <div class="global-controls">
-    <button class="btn-global on" onclick="setAll(1)">ALL ON</button>
-    <button class="btn-global off" onclick="setAll(0)">ALL OFF</button>
-  </div>
-
-  <p id="last">Sync: -</p>
 </div>
 
 <script>
@@ -151,27 +234,62 @@ let data = {relay1:0, relay2:0, relay3:0, relay4:0};
 let lastHeartbeatValue = null;
 let lastHeartbeatTime = Date.now();
 let espIsOnline = false;
+let logs = [];
+
+// Update Jam Real-time
+setInterval(() => {
+  document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID');
+}, 1000);
+
+function addLog(message, isOn) {
+  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  logs.unshift({ time, message, isOn });
+  if (logs.length > 6) logs.pop(); // Batasi hanya 6 log terakhir
+  renderLogs();
+}
+
+function renderLogs() {
+  const logList = document.getElementById('log-list');
+  if (logs.length === 0) return;
+  
+  let html = "";
+  logs.forEach(log => {
+    const textClass = log.isOn ? 'on-text' : 'off-text';
+    html += `
+      <li class="log-item">
+        <span class="log-action ${textClass}">${log.message}</span>
+        <span class="log-time">${log.time}</span>
+      </li>
+    `;
+  });
+  logList.innerHTML = html;
+}
 
 function render(){
   let html = "";
+  let activeCount = 0;
+
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
-    // KARTU DIJADIKAN SATU TOMBOL PENUH (onclick di div)
+    if (on) activeCount++;
+    
     html += `
-    <div class="card ${on ? 'on' : ''}" onclick="toggle(${i})">
-      <div class="state-dot"></div>
-      <div class="icon">
-        <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-          <line x1="12" y1="2" x2="12" y2="12"></line>
-        </svg>
+    <div class="relay-card ${on ? 'on' : ''}" onclick="toggle(${i})">
+      <div class="relay-header">
+        <div class="relay-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        </div>
+        <div class="status-dot"></div>
       </div>
-      <div class="card-title">Relay ${i}</div>
-      <div class="pin-info">P${pins[i-1]} • B${btnPins[i-1]}</div>
-      <div class="state-text">${on ? 'ON' : 'OFF'}</div>
+      <div class="relay-info">
+        <h4>Relay ${i}</h4>
+        <p>P${pins[i-1]} • B${btnPins[i-1]}</p>
+      </div>
+      <div class="relay-state">${on ? 'AKTIF' : 'NONAKTIF'}</div>
     </div>`;
   }
   document.getElementById('grid').innerHTML = html;
+  document.getElementById('active-count').innerText = `${activeCount} / 4`;
 }
 
 async function ambilData(){
@@ -180,7 +298,14 @@ async function ambilData(){
     if(!res.ok) throw new Error("HTTP Error");
     let j = await res.json();
     if(j) { 
-      data = Object.assign(data, j);
+      // Deteksi perubahan state yang dilakukan via tombol fisik (ESP32)
+      for(let i=1; i<=4; i++) {
+        if (data['relay'+i] !== j['relay'+i] && j['relay'+i] !== undefined) {
+          data['relay'+i] = j['relay'+i];
+          addLog(`Relay ${i} ${j['relay'+i] === 1 ? 'dinyalakan' : 'dimatikan'} (Alat)`, j['relay'+i] === 1);
+        }
+      }
+      
       if (j.heartbeat !== undefined) {
         if (lastHeartbeatValue === null) {
           lastHeartbeatValue = j.heartbeat;
@@ -193,25 +318,31 @@ async function ambilData(){
       }
     }
     
-    document.getElementById('koneksi-web').innerHTML = '<span class="indicator online"></span> DB Sync';
+    const dbStatus = document.getElementById('db-status');
+    dbStatus.innerText = 'Online';
+    dbStatus.className = 'c-success';
     
     let timeDiff = Date.now() - lastHeartbeatTime;
     if (timeDiff > 12000) espIsOnline = false;
 
+    const espStatus = document.getElementById('esp-status');
     if (!espIsOnline && timeDiff <= 12000) {
-      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator checking"></span> Checking';
+      espStatus.innerText = 'Mengecek...';
+      espStatus.className = 'c-warning';
     } else if (espIsOnline) {
-      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator online"></span> Device Online';
+      espStatus.innerText = 'Terhubung';
+      espStatus.className = 'c-success';
     } else {
-      document.getElementById('koneksi-esp').innerHTML = '<span class="indicator offline"></span> Device Offline';
+      espStatus.innerText = 'Offline';
+      espStatus.className = 'c-danger';
     }
 
-    let d = new Date();
-    document.getElementById('last').innerHTML = "Last sync: " + d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + ":" + d.getSeconds().toString().padStart(2,'0');
     render();
   }catch(e){
-    document.getElementById('koneksi-web').innerHTML = `<span class="indicator offline"></span> DB Error`;
-    document.getElementById('koneksi-esp').innerHTML = `<span class="indicator offline"></span> No Device`;
+    document.getElementById('db-status').innerText = 'Terputus';
+    document.getElementById('db-status').className = 'c-danger';
+    document.getElementById('esp-status').innerText = 'Gagal sinkron';
+    document.getElementById('esp-status').className = 'c-danger';
   }
 }
 
@@ -220,19 +351,21 @@ async function kirim(){
     relay1: data.relay1, relay2: data.relay2, 
     relay3: data.relay3, relay4: data.relay4
   };
-  // Optimistic UI: render dulu biar terasa cepat tanpa nunggu server
   render();
   await fetch(FIREBASE_URL, {method:'PATCH', body: JSON.stringify(payload)});
   ambilData();
 }
 
 function toggle(num){
-  data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
+  const newState = data['relay'+num] == 1 ? 0 : 1;
+  data['relay'+num] = newState;
+  addLog(`Relay ${num} ${newState ? 'dinyalakan' : 'dimatikan'} (Web)`, newState === 1);
   kirim();  
 }
 
 function setAll(val){
   for(let i=1;i<=4;i++) data['relay'+i] = val;
+  addLog(`Semua Relay ${val ? 'dinyalakan' : 'dimatikan'} (Web)`, val === 1);
   kirim();
 }
 
