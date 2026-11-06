@@ -4,14 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kontrol 4 Relay - Online</title>
+<!-- Import Font Poppins dari Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --bg-color: #0a0a0a;          /* Hitam pekat */
-    --card-bg: #141414;           /* Hitam sedikit lebih terang untuk kartu */
-    --border-color: #262626;      /* Garis batas gelap */
-    --text-main: #f0f0f0;         /* Teks putih redup */
-    --text-muted: #888888;        /* Teks abu-abu untuk deskripsi */
-    --gold-accent: #c5a059;       /* Emas elegan (tidak mencolok) */
+    --bg-color: #0a0a0a;
+    --card-bg: #141414;
+    --border-color: #262626;
+    --text-main: #f0f0f0;
+    --text-muted: #888888;
+    --gold-accent: #c5a059;
     --gold-dim: rgba(197, 160, 89, 0.15);
   }
 
@@ -22,7 +27,8 @@
   }
 
   body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    /* Menggunakan font Poppins */
+    font-family: 'Poppins', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-main);
     display: flex;
@@ -34,7 +40,7 @@
 
   .container {
     width: 100%;
-    max-width: 500px; /* Ukuran optimal untuk panel kontrol */
+    max-width: 500px;
   }
 
   /* Bagian Header */
@@ -45,16 +51,17 @@
   
   h2 {
     color: var(--gold-accent);
-    font-weight: 400;
+    font-weight: 600; /* Dibuat lebih tebal */
     letter-spacing: 2px;
     font-size: clamp(1.2rem, 5vw, 1.6rem);
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     text-transform: uppercase;
   }
   
   .subtitle {
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-weight: 300; /* Dibuat tipis agar elegan */
+    font-size: 0.9rem;
     letter-spacing: 0.5px;
   }
 
@@ -65,8 +72,9 @@
     margin-bottom: 30px;
   }
   #koneksi {
-    font-size: 0.75rem;
-    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    padding: 6px 16px;
     border-radius: 20px;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -122,18 +130,21 @@
   }
 
   .card-title {
-    font-weight: 600;
-    font-size: 1rem;
-    margin-bottom: 4px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
   }
   .pin-info {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 300;
     color: var(--text-muted);
     margin-bottom: 20px;
   }
 
   /* Tombol Per-Relay */
   .card button {
+    font-family: 'Poppins', sans-serif;
     width: 100%;
     padding: 10px;
     border-radius: 8px;
@@ -141,8 +152,8 @@
     background: transparent;
     color: var(--text-muted);
     font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 1px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
     cursor: pointer;
     transition: all 0.3s ease;
   }
@@ -154,9 +165,10 @@
     background: var(--gold-accent);
     color: var(--bg-color);
     border-color: var(--gold-accent);
+    font-weight: 600;
   }
   .card.on button:hover {
-    background: #b38f4d; /* Emas sedikit lebih gelap saat hover */
+    background: #b38f4d; 
   }
 
   /* Tombol Kontrol Global */
@@ -167,10 +179,11 @@
     margin-bottom: 20px;
   }
   .btn-global {
+    font-family: 'Poppins', sans-serif;
     padding: 14px;
     border-radius: 10px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -194,10 +207,11 @@
   #last {
     text-align: center;
     font-size: 0.75rem;
+    font-weight: 300;
     color: var(--text-muted);
+    letter-spacing: 0.5px;
   }
 
-  /* Responsivitas Layar Sangat Kecil (HP kecil) */
   @media (max-width: 360px) {
     .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .global-controls { grid-template-columns: 1fr; }
@@ -261,26 +275,23 @@ async function ambilData(){
     let j = await res.json();
     if(j){ data = j; }
     
-    // Update UI Koneksi Berhasil
     document.getElementById('koneksi').innerHTML = '<span class="indicator online"></span> Online &bull; Terhubung';
     document.getElementById('last').innerHTML = "Terakhir update: " + new Date().toLocaleTimeString();
     render();
   }catch(e){
-    // Update UI Koneksi Gagal
     document.getElementById('koneksi').innerHTML = `<span class="indicator offline"></span> Offline &bull; ${e.message}`;
   }
 }
 
 async function kirim(){
-  // Saat mengirim, tampilkan efek loading sementara di UI (opsional, render berjalan duluan)
   await fetch(FIREBASE_URL, {method:'PUT', body: JSON.stringify(data)});
   ambilData();
 }
 
 function toggle(num){
   data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
-  render(); // Update UI langsung agar terasa responsif
-  kirim();  // Sinkronkan ke Firebase
+  render(); 
+  kirim();  
 }
 
 function setAll(val){
