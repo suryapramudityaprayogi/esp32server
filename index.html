@@ -1,18 +1,93 @@
 <!DOCTYPE html>
-<html><body style="text-align:center;font-family:Arial">
-<h2>Kontrol Relay Online</h2>
-<button onclick="kirim(1,1)">Relay 1 ON</button>
-<button onclick="kirim(1,0)">Relay 1 OFF</button>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontrol 4 Relay - Online</title>
+<style>
+  body{font-family:Arial;background:#111;color:white;text-align:center;margin:0;padding:20px}
+  h2{color:#00ff88;margin:5px}
+  p{color:#aaa;font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:400px;margin:15px auto}
+  .card{background:#222;padding:15px;border-radius:15px;border:2px solid #333}
+  .card.on{border-color:#28a745}
+  .status{font-size:28px;margin:5px}
+  .pin{font-size:12px;color:#888}
+  button{width:100%;padding:12px;border:none;border-radius:10px;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+  .btn-on{background:#28a745}
+  .btn-off{background:#dc3545}
+  .btn-all{max-width:400px;margin:5px auto;display:block}
+  #koneksi{font-size:12px;padding:5px 10px;border-radius:20px;background:#333;display:inline-block}
+</style>
+</head>
+<body>
+<h2>⚡ KONTROL 4 RELAY ESP32</h2>
+<p>Pin Relay: 15 | 2 | 4 | 16 &nbsp;•&nbsp; Tombol: 13 | 12 | 14 | 27</p>
+<span id="koneksi">● Menghubungkan...</span>
+
+<div class="grid" id="grid"></div>
+
+<button class="btn-all btn-on" onclick="setAll(1)">NYALAKAN SEMUA</button>
+<button class="btn-all btn-off" onclick="setAll(0)">MATIKAN SEMUA</button>
+<p id="last">Terakhir update: -</p>
+
 <script>
-async function kirim(num, val){
-  // Ambil dulu data lama, update 1 relay aja
-  let res = await fetch('https://relay-kamu-default-rtdb.firebaseio.com/relay.json');
-  let data = await res.json() || {};
-  data['relay'+num] = val;
-  await fetch('https://relay-kamu-default-rtdb.firebaseio.com/relay.json', {
-    method: 'PUT', body: JSON.stringify(data)
-  });
-  alert('Terkirim!');
+// GANTI INI DENGAN URL FIREBASE KAMU (SAMA SEPERTI DI ESP32)
+const FIREBASE_URL = "https://relay-kamu-default-rtdb.firebaseio.com/relay.json";
+
+const pins = [15, 2, 4, 16];
+const btnPins = [13, 12, 14, 27];
+let data = {relay1:0, relay2:0, relay3:0, relay4:0};
+
+function render(){
+  let html = "";
+  for(let i=1; i<=4; i++){
+    let on = data['relay'+i] == 1;
+    html += `<div class="card ${on?'on':''}">
+      <div class="status">${on?'💡':'⚫'}</div>
+      <b>Relay ${i}</b><br>
+      <span class="pin">Relay Pin GPIO ${pins[i-1]}<br>Tombol GPIO ${btnPins[i-1]}</span>
+      <p style="color:${on?'#28a745':'#dc3545'}">${on?'ON':'OFF'}</p>
+      <button class="${on?'btn-off':'btn-on'}" onclick="toggle(${i})">${on?'MATIKAN':'NYALAKAN'}</button>
+    </div>`;
+  }
+  document.getElementById('grid').innerHTML = html;
 }
+
+async function ambilData(){
+  try{
+    let res = await fetch(FIREBASE_URL);
+    let j = await res.json();
+    if(j){ data = j; }
+    document.getElementById('koneksi').innerHTML = "● Online - Terhubung ke Firebase";
+    document.getElementById('koneksi').style.background = "#28a745";
+    document.getElementById('last').innerHTML = "Terakhir update: " + new Date().toLocaleTimeString();
+    render();
+  }catch(e){
+    document.getElementById('koneksi').innerHTML = "● Offline - Cek Firebase URL";
+    document.getElementById('koneksi').style.background = "#dc3545";
+  }
+}
+
+async function kirim(){
+  await fetch(FIREBASE_URL, {method:'PUT', body: JSON.stringify(data)});
+  ambilData();
+}
+
+function toggle(num){
+  data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
+  render();
+  kirim();
+}
+
+function setAll(val){
+  for(let i=1;i<=4;i++) data['relay'+i] = val;
+  render();
+  kirim();
+}
+
+// Jalankan pertama + auto refresh tiap 1 detik
+ambilData();
+setInterval(ambilData, 1000);
 </script>
 </body></html>
