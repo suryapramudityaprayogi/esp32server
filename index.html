@@ -22,19 +22,15 @@
 </head>
 <body>
 <h2>⚡ KONTROL 4 RELAY ESP32</h2>
-<p>Pin Relay: 15 | 2 | 4 | 16 &nbsp;•&nbsp; Tombol: 13 | 12 | 14 | 27</p>
+<p>Pin Relay: 15 | 2 | 4 | 16 • Tombol: 13 | 12 | 14 | 27</p>
 <span id="koneksi">● Menghubungkan...</span>
-
 <div class="grid" id="grid"></div>
-
 <button class="btn-all btn-on" onclick="setAll(1)">NYALAKAN SEMUA</button>
 <button class="btn-all btn-off" onclick="setAll(0)">MATIKAN SEMUA</button>
 <p id="last">Terakhir update: -</p>
 
 <script>
-// GANTI INI DENGAN URL FIREBASE KAMU (SAMA SEPERTI DI ESP32)
-const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/";
-
+const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
 const pins = [15, 2, 4, 16];
 const btnPins = [13, 12, 14, 27];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
@@ -57,6 +53,7 @@ function render(){
 async function ambilData(){
   try{
     let res = await fetch(FIREBASE_URL);
+    if(!res.ok) throw new Error("HTTP " + res.status);
     let j = await res.json();
     if(j){ data = j; }
     document.getElementById('koneksi').innerHTML = "● Online - Terhubung ke Firebase";
@@ -64,7 +61,7 @@ async function ambilData(){
     document.getElementById('last').innerHTML = "Terakhir update: " + new Date().toLocaleTimeString();
     render();
   }catch(e){
-    document.getElementById('koneksi').innerHTML = "● Offline - Cek Firebase URL";
+    document.getElementById('koneksi').innerHTML = "● Offline - " + e.message;
     document.getElementById('koneksi').style.background = "#dc3545";
   }
 }
@@ -86,7 +83,6 @@ function setAll(val){
   kirim();
 }
 
-// Jalankan pertama + auto refresh tiap 1 detik
 ambilData();
 setInterval(ambilData, 1000);
 </script>
