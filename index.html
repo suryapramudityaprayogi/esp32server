@@ -3,31 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AQUA TRACK - IoT Professional Dashboard</title>
+<title>Enterprise IoT Control | AQUA TRACK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    /* Tema Dasar Dark & Gold */
-    --bg-dark: #08080a; 
-    --surface: rgba(20, 20, 22, 0.65);
-    --surface-hover: rgba(30, 30, 35, 0.85);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-gold: rgba(212, 175, 55, 0.3);
+    /* Enterprise Dark Theme */
+    --bg-main: #08080a;
+    --bg-sidebar: #0d0d12;
+    --surface: #141419;
+    --surface-hover: #1c1c24;
+    --border: rgba(255, 255, 255, 0.06);
     
-    /* Warna Teks */
-    --text-main: #ffffff;
-    --text-muted: #9ca3af;
+    /* Typography */
+    --text-primary: #ffffff;
+    --text-secondary: #8b8d98;
+    --text-muted: #5e606b;
     
-    /* Aksen Champagne Gold */
-    --primary: #d4af37; 
-    --primary-glow: rgba(212, 175, 55, 0.4);
-    --primary-bg: rgba(212, 175, 55, 0.1);
+    /* Accents (Champagne Gold) */
+    --accent: #d4af37;
+    --accent-hover: #f0d588;
+    --accent-bg: rgba(212, 175, 55, 0.1);
     
     /* Status Colors */
     --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.1);
     --danger: #ef4444;
     --warning: #f59e0b;
   }
@@ -36,290 +38,302 @@
   
   body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    line-height: 1.5;
-    min-height: 100vh;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     display: flex;
-    flex-direction: column;
+    min-height: 100vh;
     overflow-x: hidden;
-    position: relative;
   }
 
-  /* Efek Latar Belakang Ambient Glow */
-  body::before, body::after {
-    content: ''; position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none;
-  }
-  body::before {
-    width: 400px; height: 400px; background: rgba(212, 175, 55, 0.07); top: -100px; left: -100px;
-  }
-  body::after {
-    width: 300px; height: 300px; background: rgba(255, 255, 255, 0.02); bottom: -50px; right: -50px;
-  }
-
-  /* Efek Glassmorphism Global */
-  .glass-panel {
-    background: var(--surface);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  }
-
-  /* --- SISTEM LOGIN --- */
-  .login-wrapper {
+  /* --- LOGIN PORTAL --- */
+  .login-portal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(8, 8, 10, 0.9);
-    backdrop-filter: blur(10px);
-    display: flex; justify-content: center; align-items: center; z-index: 999;
+    background-color: var(--bg-main);
+    display: flex; justify-content: center; align-items: center; z-index: 9999;
   }
-  .login-box {
-    padding: 45px 35px; border-radius: 24px; text-align: center; width: 90%; max-width: 380px;
-    animation: fadeIn 0.5s ease-out;
+  .login-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 40px; border-radius: 16px; width: 100%; max-width: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
   }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .login-header { text-align: center; margin-bottom: 30px; }
+  .login-header svg { color: var(--accent); margin-bottom: 15px; }
+  .login-header h2 { font-size: 1.5rem; font-weight: 600; }
+  .login-header p { color: var(--text-secondary); font-size: 0.9rem; }
   
-  .login-box svg { color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 12px var(--primary-glow)); }
-  .login-box h2 { font-size: 1.75rem; margin-bottom: 8px; font-weight: 600; letter-spacing: 1px; }
-  .login-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; font-weight: 300; }
-  
+  .input-group { margin-bottom: 20px; }
+  .input-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
   .login-input {
-    width: 100%; padding: 16px; margin-bottom: 20px;
-    background: rgba(0,0,0,0.5); border: 1px solid var(--border);
-    color: var(--text-main); border-radius: 12px; font-family: 'Poppins', sans-serif; font-size: 1rem;
-    outline: none; transition: all 0.3s ease; text-align: center; letter-spacing: 2px;
+    width: 100%; padding: 14px; background: var(--bg-main); border: 1px solid var(--border);
+    color: var(--text-primary); border-radius: 8px; font-family: 'Poppins', sans-serif;
+    outline: none; transition: 0.2s;
   }
-  .login-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); background: rgba(0,0,0,0.8); }
-  #login-error { color: var(--danger); font-size: 0.85rem; display: none; margin-bottom: 15px; font-weight: 500; }
-
-  /* Navbar */
-  .navbar {
-    background: rgba(8, 8, 10, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 40px; display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 100;
+  .login-input:focus { border-color: var(--accent); }
+  .btn-primary {
+    width: 100%; padding: 14px; background: var(--accent); color: #000;
+    border: none; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
+    cursor: pointer; transition: 0.2s;
   }
-  .navbar-brand { font-weight: 700; font-size: 1.3rem; color: var(--text-main); display: flex; align-items: center; gap: 12px; letter-spacing: 1px; }
-  .navbar-brand svg { color: var(--primary); filter: drop-shadow(0 0 10px var(--primary-glow)); }
+  .btn-primary:hover { background: var(--accent-hover); }
+  #login-error { color: var(--danger); font-size: 0.85rem; margin-top: 15px; display: none; text-align: center; }
 
-  .nav-right { display: flex; align-items: center; gap: 20px; }
-  .logout-btn { 
-    background: transparent; border: 1px solid var(--border); color: var(--text-muted); 
-    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease; font-family: 'Poppins', sans-serif;
-  }
-  .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
-
-  /* Main Container */
-  .container { max-width: 1280px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-
-  /* Section Title */
-  .section-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-
-  /* Metrics Grid (Top) */
-  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
-  .metric-card {
-    border-radius: 16px; padding: 25px;
-    display: flex; align-items: center; justify-content: space-between; transition: transform 0.3s ease, border-color 0.3s ease;
-  }
-  .metric-card:hover { border-color: var(--border-gold); transform: translateY(-5px); }
-  .metric-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-  .metric-info p { font-size: 1.6rem; font-weight: 700; margin-top: 8px; letter-spacing: 0.5px; }
-  .metric-icon { 
-    width: 54px; height: 54px; border-radius: 14px; background: var(--primary-bg); 
-    color: var(--primary); display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 0 20px rgba(212, 175, 55, 0.05);
-  }
-
-  /* Main Dashboard Layout */
-  .dashboard-layout { display: grid; grid-template-columns: 1.8fr 1fr; gap: 35px; }
-
-  /* Relay Controls Grid */
-  .controls-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; }
+  /* --- APP LAYOUT --- */
+  .app-container { display: none; width: 100%; }
   
-  .relay-card {
-    border-radius: 20px; padding: 30px 25px;
-    cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
+  /* Sidebar */
+  .sidebar {
+    width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; position: fixed; height: 100vh;
   }
-  .relay-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at top right, rgba(212,175,55,0.1), transparent 70%); opacity: 0; transition: 0.4s;
-  }
-  .relay-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-4px); background: var(--surface-hover); }
-  .relay-card:active { transform: scale(0.96); }
+  .brand { padding: 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.2rem; border-bottom: 1px solid var(--border); }
+  .brand svg { color: var(--accent); }
   
-  .relay-card.on {
-    background: rgba(20, 18, 12, 0.8);
-    border-color: var(--primary);
-    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.15), inset 0 0 20px rgba(212, 175, 55, 0.05);
+  .nav-menu { padding: 20px 15px; flex: 1; }
+  .nav-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 10px 10px 15px; font-weight: 500; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: var(--text-secondary);
+    border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 5px; font-size: 0.9rem;
   }
-  .relay-card.on::before { opacity: 1; }
+  .nav-item.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+  .nav-item:hover:not(.active) { background: var(--surface); color: var(--text-primary); }
   
-  .relay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; position: relative; z-index: 2; }
-  .relay-icon { color: var(--text-muted); transition: 0.4s; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-  .relay-card.on .relay-icon { color: var(--bg-dark); background: var(--primary); box-shadow: 0 0 20px var(--primary-glow); border-color: var(--primary); }
+  .user-profile { padding: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; }
+  .user-info h4 { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+  .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+
+  /* Main Content */
+  .main-content { margin-left: 280px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
   
-  .status-dot { 
-    width: 12px; height: 12px; border-radius: 50%; background: #222; transition: 0.4s; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 0 4px rgba(0,0,0,0.3); 
+  /* Topbar */
+  .topbar {
+    height: 75px; border-bottom: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 35px; background: rgba(8, 8, 10, 0.8); backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 10;
   }
-  .relay-card.on .status-dot { 
-    background: var(--primary); 
-    box-shadow: 0 0 15px var(--primary), inset 0 0 5px #fff, 0 0 0 4px rgba(212,175,55,0.1); 
-  }
-
-  .relay-info { position: relative; z-index: 2; }
-  .relay-info h4 { font-size: 1.25rem; font-weight: 600; margin-bottom: 6px; letter-spacing: 0.5px; }
-  .relay-info p { font-size: 0.85rem; color: var(--text-muted); font-weight: 300; }
-  .relay-state { font-size: 1.4rem; font-weight: 700; color: #333; margin-top: 20px; transition: 0.4s; position: relative; z-index: 2; }
-  .relay-card.on .relay-state { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
-
-  /* Sidebar Panels (Right side) */
-  .panel { border-radius: 20px; padding: 30px; margin-bottom: 25px; }
+  .breadcrumbs { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+  .breadcrumbs span { color: var(--text-primary); font-weight: 500; }
+  .top-actions { display: flex; align-items: center; gap: 20px; }
+  .time-display { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); background: var(--surface); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; font-family: 'Poppins', sans-serif;}
+  .btn-outline:hover { background: var(--surface-hover); color: var(--text-primary); }
   
-  /* Global Buttons */
-  .global-btn {
-    width: 100%; padding: 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; font-family: 'Poppins', sans-serif;
-    cursor: pointer; transition: all 0.3s ease; border: none; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 12px;
-    letter-spacing: 1px; text-transform: uppercase;
+  /* Content Area */
+  .content-wrapper { padding: 35px; }
+  
+  /* Grid Layouts */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 30px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .kpi-title { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 10px; }
+  .kpi-value { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); }
+  .kpi-status { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; margin-top: 10px; display: inline-block; }
+  .status-ok { background: var(--success-bg); color: var(--success); }
+  .status-err { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+  .status-warn { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+  
+  .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  
+  /* Panels */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .panel-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .panel-body { padding: 24px; }
+  
+  /* Relay List (Professional Table-like) */
+  .relay-list { display: flex; flex-direction: column; gap: 12px; }
+  .relay-item { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 16px 20px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg-main); transition: 0.2s;
   }
-  .global-btn.primary { 
-    background: linear-gradient(135deg, #e6c875 0%, #d4af37 100%); 
-    color: #000; box-shadow: 0 6px 20px var(--primary-glow); 
-  }
-  .global-btn.primary:hover { background: linear-gradient(135deg, #f0d588 0%, #dfbc4a 100%); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5); }
-  .global-btn.secondary { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); }
-  .global-btn.secondary:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-3px); }
+  .relay-item:hover { border-color: rgba(255,255,255,0.15); }
+  .relay-item.active { border-color: var(--accent); background: rgba(212,175,55,0.02); }
+  
+  .r-info { display: flex; align-items: center; gap: 16px; }
+  .r-icon { color: var(--text-muted); }
+  .relay-item.active .r-icon { color: var(--accent); }
+  .r-details h5 { font-size: 0.95rem; font-weight: 500; margin-bottom: 2px; }
+  .r-details p { font-size: 0.75rem; color: var(--text-secondary); }
+  
+  /* Toggle Switch (iOS / Enterprise style) */
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2a35; transition: .3s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: var(--text-secondary); transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(20px); background-color: #000; }
+  
+  /* Master Controls */
+  .master-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  
+  /* Activity Table */
+  .log-table { width: 100%; border-collapse: collapse; }
+  .log-table th, .log-table td { padding: 12px 0; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .log-table th { color: var(--text-muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+  .log-table tr:last-child td { border-bottom: none; }
+  .log-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+  .log-badge.on { background: rgba(212,175,55,0.1); color: var(--accent); }
+  .log-badge.off { background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border); }
 
-  /* Activity Logs */
-  .log-list { list-style: none; margin-top: 20px; }
-  .log-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;
-    animation: slideIn 0.3s ease-out;
-  }
-  @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-  .log-item:last-child { border-bottom: none; }
-  .log-time { color: var(--text-muted); font-size: 0.75rem; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
-  .log-action { font-weight: 500; letter-spacing: 0.5px; }
-  .log-action.on-text { color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
-  .log-action.off-text { color: var(--text-muted); }
-  .empty-log { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 30px 0; font-style: italic; }
-
-  /* Status Colors */
-  .c-success { color: var(--success); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-  .c-danger { color: var(--danger); text-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
-  .c-warning { color: var(--warning); text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
-
-  /* Responsive */
-  @media (max-width: 960px) { .dashboard-layout { grid-template-columns: 1fr; } }
-  @media (max-width: 600px) { 
-    .controls-grid { grid-template-columns: 1fr; } 
-    .container { padding: 20px 15px; } 
-    .navbar { padding: 15px 20px; }
+  @media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); z-index: 100; transition: 0.3s; }
+    .main-content { margin-left: 0; }
+    .kpi-grid, .dashboard-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- HALAMAN LOGIN -->
-<div class="login-wrapper glass-panel" id="login-wrapper" style="border: none; border-radius: 0;">
-  <div class="login-box glass-panel">
-    <svg viewBox="0 0 24 24" width="56" height="56" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="3" ry="3"></rect>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-    </svg>
-    <h2>Otentikasi Sistem</h2>
-    <p>Masukkan kredensial keamanan AQUA TRACK</p>
-    
-    <input type="password" class="login-input" id="password-input" placeholder="••••••••" onkeypress="handleKeyPress(event)">
-    <p id="login-error">Akses Ditolak: Sandi tidak valid!</p>
-    
-    <button class="global-btn primary" onclick="cekLogin()">Dekripsi & Masuk</button>
+<!-- LOGIN PORTAL -->
+<div class="login-portal" id="login-portal">
+  <div class="login-card">
+    <div class="login-header">
+      <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      <h2>Admin Portal</h2>
+      <p>AQUA TRACK System Authentication</p>
+    </div>
+    <div class="input-group">
+      <label>Security Key</label>
+      <input type="password" class="login-input" id="password-input" placeholder="Enter key..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="btn-primary" onclick="cekLogin()">Authenticate</button>
+    <p id="login-error">Authentication failed. Invalid key.</p>
   </div>
 </div>
 
-<!-- KONTEN DASHBOARD (Sembunyikan Awalnya) -->
-<div id="app-content" style="display: none; width: 100%;">
+<!-- MAIN APP -->
+<div class="app-container" id="app-content">
   
-  <nav class="navbar">
-    <div class="navbar-brand">
-      <svg viewBox="0 0 24 24" width="26" height="26" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 12h4l2-9 5 18 3-10h6"></path>
-      </svg>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
       AQUA TRACK
     </div>
-    <div class="nav-right">
-      <div style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; letter-spacing: 1px;" id="clock">00:00:00</div>
-      <button class="logout-btn" onclick="logout()">Akhiri Sesi</button>
-    </div>
-  </nav>
-
-  <div class="container">
-    <div class="metrics-grid">
-      <div class="metric-card glass-panel">
-        <div class="metric-info">
-          <h3>Koneksi Cloud</h3>
-          <p id="db-status" class="c-warning">Menghubungkan...</p>
-        </div>
-        <div class="metric-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </div>
+    <div class="nav-menu">
+      <div class="nav-label">Main Menu</div>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Control Center
       </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        Analytics
+      </div>
+      <div class="nav-label" style="margin-top: 25px;">Settings</div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Device Config
+      </div>
+    </div>
+    
+    <div class="user-profile">
+      <div class="avatar">S</div>
+      <div class="user-info">
+        <h4>Surya Pramuditya Prayogi</h4>
+        <p>Admin • TRPL (B26006)</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="breadcrumbs">
+        Overview <span>/</span> Control Center
+      </div>
+      <div class="top-actions">
+        <div class="time-display" id="clock">00:00:00 UTC</div>
+        <button class="btn-outline" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
       
-      <div class="metric-card glass-panel">
-        <div class="metric-info">
-          <h3>Status Hardware (ESP32)</h3>
-          <p id="esp-status" class="c-warning">Sinkronisasi...</p>
+      <!-- KPI Metrics -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div>
+            <div class="kpi-title">Cloud Connection</div>
+            <div class="kpi-value" id="db-status">Connecting</div>
+            <div class="kpi-status status-warn" id="db-badge">Checking Latency</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--text-secondary)" stroke-width="1.5" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
         </div>
-        <div class="metric-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+        
+        <div class="kpi-card">
+          <div>
+            <div class="kpi-title">ESP32 Hardware Status</div>
+            <div class="kpi-value" id="esp-status">Syncing...</div>
+            <div class="kpi-status status-warn" id="esp-badge">Awaiting Heartbeat</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--text-secondary)" stroke-width="1.5" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+        </div>
+        
+        <div class="kpi-card">
+          <div>
+            <div class="kpi-title">Active Relays</div>
+            <div class="kpi-value" id="active-count">0 / 4</div>
+            <div class="kpi-status status-ok">Operating Normal</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         </div>
       </div>
 
-      <div class="metric-card glass-panel">
-        <div class="metric-info">
-          <h3>Sistem Beroperasi</h3>
-          <p id="active-count" style="color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);">0 / 4</p>
+      <!-- Main Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Relay Controls -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              I/O Relay Management
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="master-controls">
+              <button class="btn-primary" onclick="setAll(1)">Turn All ON</button>
+              <button class="btn-outline" onclick="setAll(0)">Turn All OFF</button>
+            </div>
+            
+            <div class="relay-list" id="grid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
         </div>
-        <div class="metric-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+
+        <!-- Activity Log -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              System Logs
+            </div>
+          </div>
+          <div class="panel-body" style="padding-top: 10px;">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody id="log-list">
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No recent activity</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+        
       </div>
     </div>
-
-    <div class="dashboard-layout">
-      <div>
-        <div class="section-title">Modul Kendali Saluran</div>
-        <div class="controls-grid" id="grid"></div>
-      </div>
-
-      <div>
-        <div class="panel glass-panel">
-          <div class="section-title">Otoritas Master</div>
-          <button class="global-btn primary" onclick="setAll(1)">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-            Aktifkan Semua
-          </button>
-          <button class="global-btn secondary" onclick="setAll(0)">
-            Matikan Semua
-          </button>
-        </div>
-
-        <div class="panel glass-panel">
-          <div class="section-title">Log Sistem</div>
-          <ul class="log-list" id="log-list">
-            <li class="empty-log">Menunggu aktivitas baru...</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+  </main>
 </div>
 
 <script>
-// --- LOGIKA LOGIN ---
+// --- LOGIN LOGIC ---
 const PASSWORD_BENAR = "katanyasih";
 let intervalSync = null;
 
@@ -327,108 +341,88 @@ function cekLogin() {
   const input = document.getElementById('password-input').value;
   if (input === PASSWORD_BENAR) {
     localStorage.setItem('esp32_logged_in', 'true');
-    
-    // Animasi transisi yang halus
-    document.querySelector('.login-box').style.transform = 'scale(0.9)';
-    document.querySelector('.login-box').style.opacity = '0';
-    
-    setTimeout(() => {
-      document.getElementById('login-wrapper').style.display = 'none';
-      document.getElementById('app-content').style.display = 'block';
-      document.getElementById('login-error').style.display = 'none';
-      ambilData();
-      intervalSync = setInterval(ambilData, 1000);
-    }, 300);
+    document.getElementById('login-portal').style.display = 'none';
+    document.getElementById('app-content').style.display = 'flex';
+    ambilData();
+    intervalSync = setInterval(ambilData, 1000);
   } else {
-    document.getElementById('login-error').style.display = 'block';
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
     document.getElementById('password-input').value = '';
-    const box = document.querySelector('.login-box');
+    const box = document.querySelector('.login-card');
     box.style.transform = 'translateX(10px)';
-    setTimeout(() => box.style.transform = 'translateX(-10px)', 100);
-    setTimeout(() => box.style.transform = 'translateX(10px)', 200);
-    setTimeout(() => box.style.transform = 'translateX(0)', 300);
+    setTimeout(() => box.style.transform = 'translateX(-10px)', 50);
+    setTimeout(() => box.style.transform = 'translateX(10px)', 100);
+    setTimeout(() => box.style.transform = 'translateX(0)', 150);
   }
 }
 
-function handleKeyPress(e) {
-  if (e.key === 'Enter') cekLogin();
-}
-
-function logout() {
-  localStorage.removeItem('esp32_logged_in');
-  location.reload(); 
-}
+function handleKeyPress(e) { if (e.key === 'Enter') cekLogin(); }
+function logout() { localStorage.removeItem('esp32_logged_in'); location.reload(); }
 
 window.onload = () => {
   if (localStorage.getItem('esp32_logged_in') === 'true') {
-    document.getElementById('login-wrapper').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
+    document.getElementById('login-portal').style.display = 'none';
+    document.getElementById('app-content').style.display = 'flex';
     ambilData();
     intervalSync = setInterval(ambilData, 1000);
   }
 };
 
-
-// --- LOGIKA DASHBOARD ---
+// --- DASHBOARD LOGIC ---
 const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
 const pins = [15, 2, 4, 16];
-const btnPins = [13, 12, 14, 27];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
-
-let lastHeartbeatValue = null;
-let lastHeartbeatTime = Date.now();
-let espIsOnline = false;
-let logs = [];
+let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false, logs = [];
 
 setInterval(() => {
-  document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID');
+  document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID') + ' WIB';
 }, 1000);
 
-function addLog(message, isOn) {
+function addLog(channel, isOn, source) {
   const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  logs.unshift({ time, message, isOn });
-  if (logs.length > 5) logs.pop(); 
+  logs.unshift({ time, channel, isOn, source });
+  if (logs.length > 6) logs.pop(); 
   renderLogs();
 }
 
 function renderLogs() {
   const logList = document.getElementById('log-list');
   if (logs.length === 0) return;
-  
   let html = "";
   logs.forEach(log => {
-    const textClass = log.isOn ? 'on-text' : 'off-text';
     html += `
-      <li class="log-item">
-        <span class="log-action ${textClass}">${log.message}</span>
-        <span class="log-time">${log.time}</span>
-      </li>
+      <tr>
+        <td style="color: var(--text-secondary);">${log.time}</td>
+        <td>CH-${log.channel} <span style="font-size:0.7rem; color:var(--text-muted);">via ${log.source}</span></td>
+        <td><span class="log-badge ${log.isOn ? 'on' : 'off'}">${log.isOn ? 'ON' : 'OFF'}</span></td>
+      </tr>
     `;
   });
   logList.innerHTML = html;
 }
 
 function render(){
-  let html = "";
-  let activeCount = 0;
-
+  let html = ""; let activeCount = 0;
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
     if (on) activeCount++;
     
     html += `
-    <div class="relay-card glass-panel ${on ? 'on' : ''}" onclick="toggle(${i})">
-      <div class="relay-header">
-        <div class="relay-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+    <div class="relay-item ${on ? 'active' : ''}">
+      <div class="r-info">
+        <div class="r-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
         </div>
-        <div class="status-dot"></div>
+        <div class="r-details">
+          <h5>Channel 0${i}</h5>
+          <p>GPIO ${pins[i-1]} • AC Load</p>
+        </div>
       </div>
-      <div class="relay-info">
-        <h4>Saluran ${i}</h4>
-        <p>Pin Data ${pins[i-1]} • Saklar ${btnPins[i-1]}</p>
-      </div>
-      <div class="relay-state">${on ? 'MENGALIR' : 'TERPUTUS'}</div>
+      <label class="switch">
+        <input type="checkbox" ${on ? 'checked' : ''} onchange="toggle(${i})">
+        <span class="slider"></span>
+      </label>
     </div>`;
   }
   document.getElementById('grid').innerHTML = html;
@@ -444,69 +438,62 @@ async function ambilData(){
       for(let i=1; i<=4; i++) {
         if (data['relay'+i] !== j['relay'+i] && j['relay'+i] !== undefined) {
           data['relay'+i] = j['relay'+i];
-          addLog(`Saluran ${i} ${j['relay'+i] === 1 ? 'dinyalakan' : 'dimatikan'} (Perangkat)`, j['relay'+i] === 1);
+          addLog(i, j['relay'+i] === 1, 'Hardware');
         }
       }
       if (j.heartbeat !== undefined) {
         if (lastHeartbeatValue === null) {
-          lastHeartbeatValue = j.heartbeat;
-          lastHeartbeatTime = Date.now();
+          lastHeartbeatValue = j.heartbeat; lastHeartbeatTime = Date.now();
         } else if (j.heartbeat !== lastHeartbeatValue) {
-          lastHeartbeatValue = j.heartbeat;
-          lastHeartbeatTime = Date.now();
-          espIsOnline = true;
+          lastHeartbeatValue = j.heartbeat; lastHeartbeatTime = Date.now(); espIsOnline = true;
         }
       }
     }
     
-    const dbStatus = document.getElementById('db-status');
-    dbStatus.innerText = 'Online / Sinkron';
-    dbStatus.className = 'c-success';
+    document.getElementById('db-status').innerText = 'Connected';
+    document.getElementById('db-badge').innerText = 'Secure';
+    document.getElementById('db-badge').className = 'kpi-status status-ok';
     
     let timeDiff = Date.now() - lastHeartbeatTime;
     if (timeDiff > 12000) espIsOnline = false;
 
-    const espStatus = document.getElementById('esp-status');
     if (!espIsOnline && timeDiff <= 12000) {
-      espStatus.innerText = 'Menganalisis...';
-      espStatus.className = 'c-warning';
+      document.getElementById('esp-status').innerText = 'Analyzing...';
+      document.getElementById('esp-badge').innerText = 'Waiting Data';
+      document.getElementById('esp-badge').className = 'kpi-status status-warn';
     } else if (espIsOnline) {
-      espStatus.innerText = 'Terhubung Aktif';
-      espStatus.className = 'c-success';
+      document.getElementById('esp-status').innerText = 'Online';
+      document.getElementById('esp-badge').innerText = 'Active';
+      document.getElementById('esp-badge').className = 'kpi-status status-ok';
     } else {
-      espStatus.innerText = 'Koneksi Terputus';
-      espStatus.className = 'c-danger';
+      document.getElementById('esp-status').innerText = 'Offline';
+      document.getElementById('esp-badge').innerText = 'Disconnected';
+      document.getElementById('esp-badge').className = 'kpi-status status-err';
     }
-
     render();
   }catch(e){
-    document.getElementById('db-status').innerText = 'Server Gangguan';
-    document.getElementById('db-status').className = 'c-danger';
-    document.getElementById('esp-status').innerText = 'Gagal Sinkronisasi';
-    document.getElementById('esp-status').className = 'c-danger';
+    document.getElementById('db-status').innerText = 'Error';
+    document.getElementById('db-badge').innerText = 'Timeout';
+    document.getElementById('db-badge').className = 'kpi-status status-err';
   }
 }
 
 async function kirim(){
-  let payload = {
-    relay1: data.relay1, relay2: data.relay2, 
-    relay3: data.relay3, relay4: data.relay4
-  };
+  let payload = { relay1: data.relay1, relay2: data.relay2, relay3: data.relay3, relay4: data.relay4 };
   render();
   await fetch(FIREBASE_URL, {method:'PATCH', body: JSON.stringify(payload)});
   ambilData();
 }
 
 function toggle(num){
-  const newState = data['relay'+num] == 1 ? 0 : 1;
-  data['relay'+num] = newState;
-  addLog(`Saluran ${num} ${newState ? 'dinyalakan' : 'dimatikan'} (Sistem Web)`, newState === 1);
+  data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
+  addLog(num, data['relay'+num] === 1, 'Web UI');
   kirim();  
 }
 
 function setAll(val){
   for(let i=1;i<=4;i++) data['relay'+i] = val;
-  addLog(`Semua Saluran ${val ? 'diaktifkan' : 'dimatikan'} (Sistem Web)`, val === 1);
+  addLog('ALL', val === 1, 'Master');
   kirim();
 }
 </script>
