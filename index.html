@@ -345,14 +345,15 @@
       <!-- BODY: COUNTDOWN -->
       <div id="body-countdown">
         <div class="form-group">
-          <label>Durasi Hitung Mundur (Menit)</label>
+          <label>Durasi (Menit)</label>
           <input type="number" id="timer-duration" class="form-input" min="1" value="5">
         </div>
         <div class="form-group">
-          <label>Aksi Setelah Waktu Habis</label>
+          <label>Mode Operasi</label>
+          <!-- TEKS DIUBAH AGAR LEBIH JELAS SESUAI LOGIKA BARU -->
           <select id="timer-action" class="form-input">
-            <option value="1">Turn ON (Hidupkan)</option>
-            <option value="0">Turn OFF (Matikan)</option>
+            <option value="0">Hidupkan sekarang, Mati setelah waktu habis</option>
+            <option value="1">Matikan sekarang, Hidup setelah waktu habis</option>
           </select>
         </div>
       </div>
@@ -480,10 +481,7 @@
                 <button class="btn-primary" onclick="setAll(1)">Turn All ON</button>
                 <button class="btn-outline" onclick="setAll(0)">Turn All OFF</button>
               </div>
-              
-              <!-- GRID RELAY KOTAK PINTAR -->
               <div class="relay-grid" id="grid"></div>
-              
             </div>
           </div>
 
@@ -655,7 +653,6 @@ function initGrid() {
     html += `
     <div class="relay-card" id="relay-item-${i}">
       
-      <!-- Bagian Atas: Ikon & Tombol Timer -->
       <div class="rc-top">
         <div class="rc-icon">
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
@@ -665,7 +662,6 @@ function initGrid() {
         </button>
       </div>
 
-      <!-- Bagian Tengah: Judul & Timer Info -->
       <div class="rc-title">
         <h5>Channel 0${i}</h5>
         <p>GPIO ${pins[i-1]} • AC Load</p>
@@ -677,7 +673,6 @@ function initGrid() {
         </div>
       </div>
 
-      <!-- Bagian Bawah: Label Status & Tombol Switch -->
       <div class="rc-bottom">
         <div class="state-text" id="state-text-${i}">OFF</div>
         <label class="switch">
@@ -837,15 +832,21 @@ function closeModal() {
 function applyTimer() {
   if (currentTimerMode === 'countdown') {
     let mins = parseInt(document.getElementById('timer-duration').value);
-    let act = parseInt(document.getElementById('timer-action').value);
+    let targetAction = parseInt(document.getElementById('timer-action').value);
     if(isNaN(mins) || mins <= 0) { alert("Durasi tidak valid!"); return; }
+    
+    // LOGIKA BARU: Atur status sekarang kebalikannya dari target akhir.
+    let initialState = (targetAction === 1) ? 0 : 1;
+    data['relay'+currentModalRelay] = initialState;
     
     activeTimers[currentModalRelay] = {
        active: true, mode: 'countdown',
        endTime: Date.now() + (mins * 60000),
-       action: act
+       action: targetAction
     };
-    addLog(currentModalRelay, act === 1, `Set Timer (${mins}m)`);
+    
+    addLog(currentModalRelay, initialState === 1, `Timer Start: ${initialState === 1 ? 'ON' : 'OFF'}`);
+    kirim(); // Segera ubah hardware sesuai status inisialisasi
     
   } else if (currentTimerMode === 'schedule') {
     let startVal = document.getElementById('sch-start').value;
