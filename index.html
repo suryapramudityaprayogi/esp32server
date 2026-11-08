@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Library jsPDF untuk Export PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
 <style>
   :root {
     /* Enterprise Dark Theme - Glassmorphism Base */
@@ -33,7 +37,6 @@
     --success: #10b981;
     --success-bg: rgba(16, 185, 129, 0.15);
     --danger: #ef4444;
-    --danger-hover: #dc2626;
     --warning: #f59e0b;
     
     --blob-1: #d4af37;
@@ -90,7 +93,6 @@
     100% { transform: translate(-5%, 5%) scale(0.9); }
   }
 
-  /* --- UTILITIES & EFFECTS --- */
   .glass-panel {
     background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -117,17 +119,14 @@
   body.light-theme .login-input { background: rgba(255,255,255,0.5); }
   .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
   
-  .btn-primary, .btn-danger {
+  .btn-primary {
     width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; 
     cursor: pointer; transition: 0.3s; font-size: 0.95rem; font-family: 'Poppins', sans-serif;
+    background: var(--accent); color: #000; box-shadow: 0 10px 20px var(--accent-glow);
   }
-  .btn-primary { background: var(--accent); color: #000; box-shadow: 0 10px 20px var(--accent-glow); }
   body.light-theme .btn-primary { color: #fff; }
   .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 25px var(--accent-glow); filter: brightness(1.1); }
   
-  .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 10px 20px rgba(239,68,68,0.3); letter-spacing: 1px; }
-  .btn-danger:hover { background: var(--danger-hover); transform: translateY(-2px); box-shadow: 0 15px 25px rgba(239,68,68,0.5); }
-
   #login-error { color: var(--danger); font-size: 0.85rem; margin-top: 15px; display: none; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px;}
 
   /* --- APP LAYOUT --- */
@@ -187,18 +186,6 @@
   .view-section.active-view { display: block; }
   @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-  /* --- E-STOP LOCKOUT BANNER --- */
-  .emergency-banner {
-    background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger);
-    padding: 20px 25px; border-radius: 16px; margin-bottom: 30px; display: none;
-    align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(239,68,68,0.2);
-    animation: pulseBanner 2s infinite; backdrop-filter: blur(10px);
-  }
-  @keyframes pulseBanner { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 15px rgba(239,68,68,0); } }
-  .eb-icon { color: var(--danger); background: rgba(239,68,68,0.2); padding: 15px; border-radius: 50%; }
-  .eb-text h3 { color: var(--danger); font-weight: 700; margin-bottom: 5px; font-size: 1.2rem;}
-  .eb-text p { color: var(--text-primary); font-size: 0.9rem; opacity: 0.9;}
-
   /* --- PROJECT BANNER --- */
   .project-banner {
     width: 100%; min-height: 220px; margin-bottom: 35px; 
@@ -229,9 +216,6 @@
   
   /* --- SMART RELAY CARDS --- */
   .relay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; transition: 0.4s; }
-  
-  /* Saat sistem di Lock (E-STOP) */
-  .relay-grid.system-locked { pointer-events: none; filter: grayscale(0.8); opacity: 0.5; }
 
   .relay-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
@@ -285,7 +269,7 @@
   }
   .btn-cancel-timer:hover { background: var(--danger); color: #fff; transform: scale(1.2); }
 
-  .master-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+  .master-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
   
   /* --- LOG TABLE --- */
   .log-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
@@ -326,7 +310,6 @@
   @media (max-width: 1024px) {
     .sidebar { transform: translateX(-100%); }
     .main-content { margin-left: 0; }
-    .master-controls { grid-template-columns: 1fr; }
   }
   @media (max-width: 768px) {
     .relay-grid { grid-template-columns: 1fr; }
@@ -456,18 +439,6 @@
     <div class="content-wrapper">
       <!-- CONTROL CENTER -->
       <div id="view-control" class="view-section active-view">
-        
-        <!-- FITUR PRO 1: E-STOP BANNER (Hidden by default) -->
-        <div class="emergency-banner" id="emergency-banner">
-          <div class="eb-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" stroke-width="2" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          </div>
-          <div class="eb-text">
-            <h3>SISTEM TERKUNCI (EMERGENCY STOP)</h3>
-            <p>Aliran listrik telah diputus paksa. Buka kunci untuk mengaktifkan kembali hardware.</p>
-          </div>
-          <button class="btn-primary" style="margin-left: auto; width: auto; background: var(--danger); color: #fff;" onclick="unlockEmergency()">Buka Kunci Sistem</button>
-        </div>
 
         <div class="project-banner glass-panel">
           <div class="banner-tag">IOT ENTERPRISE MODULE</div>
@@ -496,9 +467,6 @@
               <div class="master-controls">
                 <button class="btn-primary" onclick="setAll(1)">ALL ON</button>
                 <button class="btn-primary" style="background:transparent; border:1px solid var(--border); color:var(--text-primary);" onclick="setAll(0)">ALL OFF</button>
-                
-                <!-- TOMBOL E-STOP -->
-                <button class="btn-danger" onclick="triggerEmergency()">🚨 E-STOP</button>
               </div>
               <div class="relay-grid" id="grid"></div>
             </div>
@@ -507,9 +475,9 @@
           <div class="panel glass-panel">
             <div class="panel-header">
               <div class="panel-title"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Log Aktivitas</div>
-              <!-- FITUR PRO 2: EXPORT CSV LOGS -->
-              <button class="btn-icon-small" style="width:32px; height:32px;" title="Unduh CSV Audit Trail" onclick="exportLogsCSV()">
-                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <!-- FITUR EXPORT PDF -->
+              <button class="btn-icon-small" style="width:32px; height:32px;" title="Unduh PDF Audit Trail" onclick="exportLogsPDF()">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
               </button>
             </div>
             <div class="panel-body" style="padding-top: 10px;">
@@ -530,9 +498,9 @@
           <div class="panel-header"><div class="panel-title">Konfigurasi Hardware</div></div>
           <div class="panel-body">
             <div class="placeholder-box">
-              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-              <h3>Sistem Terkunci (Mode Keamanan)</h3>
-              <p>Modul ESP32 beroperasi dalam mode Over-The-Air (OTA). Mapping pinout fisik (GPIO 15, 2, 4, 16) dikunci dari web.</p>
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" style="width:48px;height:48px;opacity:0.5;margin-bottom:15px;display:block;margin-left:auto;margin-right:auto;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <h3 style="text-align:center;">Sistem Terkunci (Mode Keamanan)</h3>
+              <p style="text-align:center;color:var(--text-secondary);">Modul ESP32 beroperasi dalam mode Over-The-Air (OTA). Mapping pinout fisik (GPIO 15, 2, 4, 16) dikunci dari web.</p>
             </div>
           </div>
         </div>
@@ -595,17 +563,13 @@ window.onload = () => {
   if (localStorage.getItem('esp32_logged_in') === 'true') initApp();
 };
 
-// --- DATA LOGIC & PROFESSIONAL FEATURES ---
+// --- DATA LOGIC ---
 const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
 const pins = [15, 2, 4, 16];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
 let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false;
 
-// Array logs yang lebih besar (Max 50) untuk export CSV
 let fullLogs = []; 
-
-// Fitur Pro: Emergency Lockout State
-let isEmergencyLocked = false; 
 
 let activeTimers = {
   1: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
@@ -614,31 +578,26 @@ let activeTimers = {
   4: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false }
 };
 
-function saveState() { 
-  localStorage.setItem('esp32_timers_state', JSON.stringify(activeTimers)); 
-  localStorage.setItem('esp32_emergency_state', isEmergencyLocked);
-}
+function saveState() { localStorage.setItem('esp32_timers_state', JSON.stringify(activeTimers)); }
 function loadState() {
   const savedTimers = localStorage.getItem('esp32_timers_state');
-  const savedEStop = localStorage.getItem('esp32_emergency_state');
   if(savedTimers) { try { activeTimers = JSON.parse(savedTimers); } catch(e) {} }
-  if(savedEStop === 'true') isEmergencyLocked = true;
 }
 
 setInterval(() => {
   document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID') + ' WIB';
 }, 1000);
 
-// --- FITUR PRO 2: AUDIT TRAIL LOGGING ---
+// --- LOGGING & PDF EXPORT ---
 function addLog(channel, isOn, source) {
   const dateObj = new Date();
   const time = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const fullDate = dateObj.toLocaleDateString('id-ID') + " " + time; // Untuk CSV
+  const fullDate = dateObj.toLocaleDateString('id-ID') + " " + time; 
   
   const logEntry = { time, fullDate, channel, isOn, source };
   
   fullLogs.unshift(logEntry);
-  if (fullLogs.length > 50) fullLogs.pop(); // Simpan max 50 log terbaru di memori
+  if (fullLogs.length > 50) fullLogs.pop(); // Batas memory log di browser
   
   renderLogs();
 }
@@ -647,13 +606,12 @@ function renderLogs() {
   const logList = document.getElementById('log-list');
   if (fullLogs.length === 0) return;
   let html = "";
-  // Hanya tampilkan 5 teratas di UI Web agar rapi
-  let uiLogs = fullLogs.slice(0, 5); 
+  let uiLogs = fullLogs.slice(0, 5); // Tampilkan 5 terakhir di Web
   
   uiLogs.forEach(log => {
     let sourceFormat = log.source.includes('Timer') || log.source.includes('Jadwal') 
                        ? `<span style="color:var(--accent)">${log.source}</span>` 
-                       : (log.source.includes('E-STOP') ? `<span style="color:var(--danger)">${log.source}</span>` : log.source);
+                       : log.source;
     html += `
       <tr>
         <td style="color: var(--text-secondary);">${log.time}</td>
@@ -665,50 +623,56 @@ function renderLogs() {
   logList.innerHTML = html;
 }
 
-// Fungsi Download CSV
-function exportLogsCSV() {
-  if (fullLogs.length === 0) { alert("Belum ada log aktivitas untuk diunduh."); return; }
+// FUNGSI EXPORT LOG KE PDF 
+function exportLogsPDF() {
+  if (fullLogs.length === 0) { 
+    alert("Belum ada log aktivitas untuk diunduh."); 
+    return; 
+  }
   
-  let csvContent = "Tanggal Waktu,Channel,Sumber Aksi,Status Relay\n";
+  // Menggunakan jsPDF dari CDN window object
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Header PDF
+  doc.setFontSize(16);
+  doc.setTextColor(40);
+  doc.text("Laporan Audit Trail: IoT Smart Relay", 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text("Waktu Unduh: " + new Date().toLocaleString('id-ID') + " WIB", 14, 28);
+  doc.text("Admin: Surya Pramuditya P. (B26006)", 14, 34);
+
+  // Setup Data Tabel
+  const tableColumn = ["Waktu / Tanggal", "Channel Relay", "Sistem / Sumber", "Status Akhir"];
+  const tableRows = [];
+
   fullLogs.forEach(log => {
-      let statusStr = log.isOn ? "ON" : "OFF";
-      let channelStr = log.channel === 'ALL' ? 'ALL_CHANNELS' : `CH-0${log.channel}`;
-      csvContent += `"${log.fullDate}","${channelStr}","${log.source}","${statusStr}"\n`;
+    const statusStr = log.isOn ? "AKTIF (ON)" : "MATI (OFF)";
+    const channelStr = log.channel === 'ALL' ? 'ALL CHANNELS' : `CH-0${log.channel}`;
+    
+    tableRows.push([
+      log.fullDate,
+      channelStr,
+      log.source,
+      statusStr
+    ]);
   });
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `IoT_Audit_Logs_${new Date().getTime()}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+  // Generate Tabel menggunakan autotable plugin
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 42,
+    theme: 'grid',
+    styles: { fontSize: 9, font: 'helvetica' },
+    headStyles: { fillColor: [212, 175, 55], textColor: 255 }, // Warna Accent Gold
+    alternateRowStyles: { fillColor: [245, 245, 245] }
+  });
 
-// --- FITUR PRO 1: EMERGENCY STOP SYSTEM ---
-function triggerEmergency() {
-  // Matikan semua relay dan reset timer
-  for(let i=1; i<=4; i++) {
-    data['relay'+i] = 0;
-    activeTimers[i].active = false;
-  }
-  isEmergencyLocked = true;
-  addLog('ALL', false, '🚨 E-STOP TRIGGERED');
-  saveState();
-  kirim(); // Paksa kirim ke Firebase secepatnya
-}
-
-function unlockEmergency() {
-  let pw = prompt("Masukkan Kunci Akses untuk membuka sistem:");
-  if(pw === PASSWORD_BENAR) {
-    isEmergencyLocked = false;
-    addLog('SYSTEM', false, 'E-STOP DIBUKA');
-    saveState();
-    updateGrid();
-  } else if (pw !== null) {
-    alert("Kunci akses salah!");
-  }
+  // Simpan File
+  doc.save(`IoT_Audit_Logs_${new Date().getTime()}.pdf`);
 }
 
 // --- CORE UI LOGIC ---
@@ -748,17 +712,6 @@ function initGrid() {
 }
 
 function updateGrid(){
-  // Update visual Lockout State
-  const gridEl = document.getElementById('grid');
-  const bannerEl = document.getElementById('emergency-banner');
-  if (isEmergencyLocked) {
-    gridEl.classList.add('system-locked');
-    bannerEl.style.display = 'flex';
-  } else {
-    gridEl.classList.remove('system-locked');
-    bannerEl.style.display = 'none';
-  }
-
   let activeCount = 0;
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
@@ -779,7 +732,7 @@ function updateGrid(){
     
     if (timerDisp && timerText) {
         let t = activeTimers[i];
-        if (t.active && !isEmergencyLocked) {
+        if (t.active) {
             timerDisp.style.display = "flex";
             if (t.mode === 'countdown') {
                 let rem = t.endTime - Date.now();
@@ -808,15 +761,9 @@ async function ambilData(){
     let j = await res.json();
     if(j) { 
       for(let i=1; i<=4; i++) {
-        // Jika status cloud berbeda dengan status lokal, timpa status lokal HANYA jika sistem tidak dikunci.
         if (data['relay'+i] !== j['relay'+i] && j['relay'+i] !== undefined) {
-          if(!isEmergencyLocked) {
              data['relay'+i] = j['relay'+i];
              addLog(i, j['relay'+i] === 1, 'Hardware Sinkron');
-          } else {
-             // Jika dilock tapi hardware berubah, paksa hardware mati lagi.
-             kirim(); 
-          }
         }
       }
       if (j.heartbeat !== undefined) {
@@ -860,14 +807,12 @@ async function kirim(){
 }
 
 function toggle(num){
-  if (isEmergencyLocked) { updateGrid(); return; } // Pencegahan manual ganda
   data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
   addLog(num, data['relay'+num] === 1, 'Web Dashboard');
   kirim();  
 }
 
 function setAll(val){
-  if (isEmergencyLocked) return;
   for(let i=1;i<=4;i++) data['relay'+i] = val;
   addLog('ALL', val === 1, 'Master Command');
   kirim();
@@ -889,7 +834,6 @@ function switchTimerTab(mode) {
 }
 
 function openTimerModal(num) {
-  if(isEmergencyLocked) return;
   currentModalRelay = num;
   document.getElementById('modal-relay-num').innerText = num;
   switchTimerTab('countdown'); 
@@ -936,8 +880,6 @@ function cancelTimer(num) {
 
 // LOOP EKSEKUSI TIMER
 setInterval(() => {
-  if(isEmergencyLocked) return; // Hentikan semua proses timer jika darurat
-  
   let needsUpdate = false;
   let now = new Date();
   let currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
