@@ -10,35 +10,31 @@
 
 <style>
   :root {
-    /* Enterprise Dark Theme (Default) */
+    /* Enterprise Dark Theme */
     --bg-main: #08080a;
     --bg-sidebar: #0d0d12;
     --surface: #141419;
     --surface-hover: #1c1c24;
     --border: rgba(255, 255, 255, 0.08);
     
-    /* Typography */
     --text-primary: #ffffff;
     --text-secondary: #8b8d98;
     --text-muted: #5e606b;
     
-    /* Accents (Champagne Gold) */
+    /* Accents */
     --accent: #d4af37;
     --accent-hover: #f0d588;
     --accent-bg: rgba(212, 175, 55, 0.1);
     
-    /* Specific Element Colors */
     --switch-bg: #2a2a35;
     --banner-gradient: linear-gradient(90deg, rgba(8,8,10,1) 0%, rgba(8,8,10,0.85) 40%, rgba(8,8,10,0.1) 100%);
     
-    /* Status Colors */
     --success: #10b981;
     --success-bg: rgba(16, 185, 129, 0.1);
     --danger: #ef4444;
     --warning: #f59e0b;
   }
 
-  /* Light Theme Variables */
   body.light-theme {
     --bg-main: #f4f5f8;
     --bg-sidebar: #ffffff;
@@ -90,27 +86,24 @@
   .input-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
   .login-input {
     width: 100%; padding: 14px; background: var(--bg-main); border: 1px solid var(--border);
-    color: var(--text-primary); border-radius: 8px; font-family: 'Poppins', sans-serif;
-    outline: none; transition: 0.2s;
+    color: var(--text-primary); border-radius: 8px; font-family: 'Poppins', sans-serif; outline: none; transition: 0.2s;
   }
   .login-input:focus { border-color: var(--accent); }
   .btn-primary {
     width: 100%; padding: 14px; background: var(--accent); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    border: none; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif;
-    cursor: pointer; transition: 0.2s;
+    border: none; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.2s;
   }
   body.light-theme .btn-primary { color: #fff; }
   body:not(.light-theme) .btn-primary { color: #000; text-shadow: none; }
   .btn-primary:hover { background: var(--accent-hover); }
   #login-error { color: var(--danger); font-size: 0.85rem; margin-top: 15px; display: none; text-align: center; }
 
-  /* --- APP LAYOUT --- */
+  /* --- LAYOUT --- */
   .app-container { display: none; width: 100%; }
   
   .sidebar {
     width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; position: fixed; height: 100vh;
-    transition: background-color 0.3s ease;
+    display: flex; flex-direction: column; position: fixed; height: 100vh; transition: 0.3s;
   }
   .brand { padding: 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.2rem; border-bottom: 1px solid var(--border); }
   .brand svg { color: var(--accent); }
@@ -138,7 +131,7 @@
   .topbar {
     height: 75px; border-bottom: 1px solid var(--border); display: flex; align-items: center;
     justify-content: space-between; padding: 0 35px; background: var(--bg-main); 
-    position: sticky; top: 0; z-index: 10; transition: background-color 0.3s ease;
+    position: sticky; top: 0; z-index: 10; transition: 0.3s;
   }
   .breadcrumbs { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
   .breadcrumbs span { color: var(--text-primary); font-weight: 500; }
@@ -190,52 +183,66 @@
   .panel-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
   .panel-body { padding: 24px; }
   
-  .relay-list { display: flex; flex-direction: column; gap: 12px; }
-  .relay-item { 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 16px 20px; border: 1px solid var(--border); border-radius: 10px;
-    background: var(--bg-main); transition: 0.2s;
+  /* --- NEW RELAY CARDS (SMART HOME STYLE) --- */
+  .relay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  
+  .relay-card {
+    background: var(--bg-main); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px; display: flex; flex-direction: column; transition: 0.3s ease;
+    position: relative; overflow: hidden;
   }
-  .relay-item:hover { border-color: rgba(255,255,255,0.15); }
-  body.light-theme .relay-item:hover { border-color: rgba(0,0,0,0.2); }
-  .relay-item.active { border-color: var(--accent); background: var(--accent-bg); }
+  .relay-card:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  body.light-theme .relay-card:hover { border-color: rgba(0,0,0,0.2); }
   
-  .r-info { display: flex; align-items: center; gap: 16px; }
-  .r-icon { color: var(--text-muted); transition: 0.3s; }
-  .relay-item.active .r-icon { color: var(--accent); }
-  .r-details h5 { font-size: 0.95rem; font-weight: 500; margin-bottom: 2px; color: var(--text-primary); }
-  .r-details p { font-size: 0.75rem; color: var(--text-secondary); }
-  
-  .r-actions { display: flex; align-items: center; gap: 15px; }
+  .relay-card.active {
+    background: var(--accent-bg); border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.08);
+  }
+
+  .rc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .rc-icon {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--surface);
+    display: flex; justify-content: center; align-items: center; color: var(--text-muted); transition: 0.3s;
+  }
+  .relay-card.active .rc-icon { background: var(--accent); color: #fff; }
+  body:not(.light-theme) .relay-card.active .rc-icon { color: #000; }
+
+  .rc-title h5 { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  .rc-title p { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;}
+
+  .rc-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px;}
+  .state-text { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); transition: 0.3s; letter-spacing: 0.5px;}
+  .relay-card.active .state-text { color: var(--accent); }
+
   .btn-icon-small {
-    background: var(--bg-main); border: 1px solid var(--border); color: var(--text-secondary);
-    width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center;
+    background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+    width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center;
     cursor: pointer; transition: 0.2s;
   }
-  .btn-icon-small:hover { color: var(--accent); border-color: var(--accent-bg); background: var(--surface-hover); }
+  .btn-icon-small:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); }
 
+  /* Bigger switch for easier control */
+  .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: #fff; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  body:not(.light-theme) .slider:before { background-color: #8b8d98; }
+  input:checked + .slider { background-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(24px); background-color: #fff; }
+  body:not(.light-theme) input:checked + .slider:before { background-color: #000; }
+  
   .timer-display {
-    margin-top: 6px; display: none; align-items: center; gap: 8px;
-    background: var(--accent-bg); padding: 4px 8px; border-radius: 6px;
-    border: 1px solid rgba(212, 175, 55, 0.2); width: fit-content;
+    display: none; align-items: center; gap: 8px;
+    background: rgba(212, 175, 55, 0.15); padding: 5px 10px; border-radius: 6px;
+    border: 1px solid rgba(212, 175, 55, 0.3); width: fit-content; margin-top: 5px;
   }
   .timer-text { font-size: 0.75rem; font-weight: 500; color: var(--accent); }
   .btn-cancel-timer {
     background: transparent; border: none; color: var(--accent); cursor: pointer;
-    font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
-    padding: 2px; border-radius: 4px; transition: 0.2s;
+    font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: 0.2s;
   }
-  .btn-cancel-timer:hover { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+  .btn-cancel-timer:hover { color: var(--danger); transform: scale(1.1); }
 
-  .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 34px; }
-  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: #fff; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-  body:not(.light-theme) .slider:before { background-color: #8b8d98; }
-  input:checked + .slider { background-color: var(--accent); }
-  input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
-  body:not(.light-theme) input:checked + .slider:before { background-color: #000; }
-  
   .master-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
   
   .log-table { width: 100%; border-collapse: collapse; }
@@ -246,15 +253,21 @@
   .log-badge.on { background: var(--accent-bg); color: var(--accent); }
   .log-badge.off { background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border); }
 
-  /* --- MODAL TIMER (TABS INCLUDED) --- */
+  .placeholder-box {
+    background: var(--surface); border: 1px dashed var(--border); border-radius: 12px;
+    padding: 60px 20px; text-align: center; color: var(--text-secondary); margin-top: 20px;
+  }
+  .placeholder-box svg { margin-bottom: 15px; opacity: 0.5; }
+
+  /* --- MODAL TIMER --- */
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
     display: none; justify-content: center; align-items: center; z-index: 10000;
   }
   .modal-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; width: 100%; max-width: 380px;
+    border-radius: 16px; width: 100%; max-width: 380px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     animation: scaleIn 0.2s ease-out;
   }
@@ -288,11 +301,17 @@
   .modal-actions button { flex: 1; }
   .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
+  /* RESPONSIVE */
   @media (max-width: 1024px) {
-    .sidebar { transform: translateX(-100%); z-index: 100; transition: 0.3s; }
+    .sidebar { transform: translateX(-100%); z-index: 100; }
     .main-content { margin-left: 0; }
     .kpi-grid, .dashboard-grid { grid-template-columns: 1fr; }
     .project-banner { padding: 25px; height: auto; }
+  }
+  
+  /* Layout Grid Kotak diubah ke 1 kolom vertikal besar jika di HP */
+  @media (max-width: 768px) {
+    .relay-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -322,12 +341,10 @@
       <h3>Set Timer CH-<span id="modal-relay-num">1</span></h3>
       <button class="btn-close" onclick="closeModal()">✕</button>
     </div>
-    
     <div class="modal-tabs">
       <div class="m-tab active" id="tab-countdown" onclick="switchTimerTab('countdown')">Mode Durasi</div>
       <div class="m-tab" id="tab-schedule" onclick="switchTimerTab('schedule')">Mode Jadwal</div>
     </div>
-
     <div class="modal-body">
       <!-- BODY: COUNTDOWN -->
       <div id="body-countdown">
@@ -343,7 +360,6 @@
           </select>
         </div>
       </div>
-
       <!-- BODY: SCHEDULE -->
       <div id="body-schedule" style="display: none;">
         <div class="time-row">
@@ -364,10 +380,9 @@
           </select>
         </div>
       </div>
-
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeModal()">Batal</button>
-        <button class="btn-primary" onclick="applyTimer()">Aktifkan</button>
+        <button class="btn-primary" onclick="applyTimer()">Simpan</button>
       </div>
     </div>
   </div>
@@ -375,7 +390,6 @@
 
 <!-- MAIN APP -->
 <div class="app-container" id="app-content">
-  
   <aside class="sidebar">
     <div class="brand">
       <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
@@ -397,7 +411,6 @@
         Device Config
       </div>
     </div>
-    
     <div class="user-profile">
       <div class="avatar"></div>
       <div class="user-info">
@@ -414,24 +427,21 @@
       </div>
       <div class="top-actions">
         <div class="time-display" id="clock">00:00:00 WIB</div>
-        
         <button class="btn-icon" onclick="toggleTheme()" title="Ganti Tema">
           <svg id="icon-moon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           <svg id="icon-sun" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
-        
         <button class="btn-outline" onclick="logout()">Sign Out</button>
       </div>
     </header>
 
     <div class="content-wrapper">
-      
       <!-- CONTROL CENTER -->
       <div id="view-control" class="view-section active-view">
         <div class="project-banner">
           <div class="banner-tag">ESP32 MODULE</div>
           <h2>House Control System</h2>
-          <p>Sistem antarmuka 4-saluran relai terintegrasi berbasis mikrokontroler dengan sinkronisasi Realtime Database untuk program studi TRPL.</p>
+          <p>Antarmuka pintar 4-saluran relai berbasis mikrokontroler dengan sinkronisasi Realtime Database.</p>
         </div>
         
         <div class="kpi-grid">
@@ -443,16 +453,14 @@
             </div>
             <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--text-secondary)" stroke-width="1.5" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
           </div>
-          
           <div class="kpi-card">
             <div>
-              <div class="kpi-title">ESP32 Hardware Status</div>
+              <div class="kpi-title">Hardware Status</div>
               <div class="kpi-value" id="esp-status">Syncing...</div>
               <div class="kpi-status status-warn" id="esp-badge">Awaiting Heartbeat</div>
             </div>
             <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--text-secondary)" stroke-width="1.5" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
           </div>
-          
           <div class="kpi-card">
             <div>
               <div class="kpi-title">Active Relays</div>
@@ -468,7 +476,7 @@
             <div class="panel-header">
               <div class="panel-title">
                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                I/O Relay Management
+                Relay Dashboard
               </div>
             </div>
             <div class="panel-body">
@@ -476,9 +484,12 @@
                 <button class="btn-primary" onclick="setAll(1)">Turn All ON</button>
                 <button class="btn-outline" onclick="setAll(0)">Turn All OFF</button>
               </div>
-              <div class="relay-list" id="grid">
-                <!-- Rendered via JS -->
+              
+              <!-- GRID RELAY KOTAK PINTAR -->
+              <div class="relay-grid" id="grid">
+                <!-- Dirender via JS initGrid() -->
               </div>
+              
             </div>
           </div>
 
@@ -491,15 +502,9 @@
             </div>
             <div class="panel-body" style="padding-top: 10px;">
               <table class="log-table">
-                <thead>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>Action</th>
-                    <th>State</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Waktu</th><th>Aksi</th><th>Status</th></tr></thead>
                 <tbody id="log-list">
-                  <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No recent activity</td></tr>
+                  <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Belum ada aktivitas</td></tr>
                 </tbody>
               </table>
             </div>
@@ -529,7 +534,7 @@
             <div class="placeholder-box">
               <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
               <h3>ESP32 Configuration</h3>
-              <p style="margin-top: 10px; font-size: 0.9rem;">Alat (ESP32) sedang berjalan dalam mode OTA. Konfigurasi pinout terkunci.</p>
+              <p style="margin-top: 10px; font-size: 0.9rem;">Alat (ESP32) sedang berjalan dalam mode OTA. Konfigurasi pinout terkunci secara fisik.</p>
             </div>
           </div>
         </div>
@@ -588,7 +593,7 @@ function initApp() {
 }
 
 window.onload = () => {
-  if (localStorage.getItem('house_control_theme') === 'light') toggleTheme(); // Revert to adjust icons
+  if (localStorage.getItem('house_control_theme') === 'light') toggleTheme();
   if (localStorage.getItem('esp32_logged_in') === 'true') initApp();
 };
 
@@ -598,7 +603,6 @@ const pins = [15, 2, 4, 16];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
 let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false, logs = [];
 
-// Struktur Data Timer yang Diperbarui (Mendukung Countdown dan Schedule)
 let activeTimers = {
   1: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
   2: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
@@ -633,35 +637,44 @@ function renderLogs() {
   logList.innerHTML = html;
 }
 
+// BENTUK KARTU (CARD) YANG BARU
 function initGrid() {
   let html = "";
   for(let i=1; i<=4; i++) {
     html += `
-    <div class="relay-item" id="relay-item-${i}">
-      <div class="r-info">
-        <div class="r-icon">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+    <div class="relay-card" id="relay-item-${i}">
+      
+      <!-- Bagian Atas: Ikon & Tombol Timer -->
+      <div class="rc-top">
+        <div class="rc-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
         </div>
-        <div class="r-details">
-          <h5>Channel 0${i}</h5>
-          <p>GPIO ${pins[i-1]} • AC Load</p>
-          <div id="timer-display-${i}" class="timer-display">
-             <span class="timer-text" id="timer-text-${i}"></span>
-             <button class="btn-cancel-timer" onclick="cancelTimer(${i})" title="Batalkan Timer">
-                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-             </button>
-          </div>
-        </div>
-      </div>
-      <div class="r-actions">
         <button class="btn-icon-small" onclick="openTimerModal(${i})" title="Set Timer">
           <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         </button>
+      </div>
+
+      <!-- Bagian Tengah: Judul & Timer Info -->
+      <div class="rc-title">
+        <h5>Channel 0${i}</h5>
+        <p>GPIO ${pins[i-1]} • AC Load</p>
+        <div id="timer-display-${i}" class="timer-display">
+           <span class="timer-text" id="timer-text-${i}"></span>
+           <button class="btn-cancel-timer" onclick="cancelTimer(${i})" title="Batal">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+           </button>
+        </div>
+      </div>
+
+      <!-- Bagian Bawah: Label Status & Tombol Switch -->
+      <div class="rc-bottom">
+        <div class="state-text" id="state-text-${i}">OFF</div>
         <label class="switch">
           <input type="checkbox" id="relay-toggle-${i}" onchange="toggle(${i})">
           <span class="slider"></span>
         </label>
       </div>
+      
     </div>`;
   }
   document.getElementById('grid').innerHTML = html;
@@ -675,13 +688,22 @@ function updateGrid(){
     
     let item = document.getElementById(`relay-item-${i}`);
     let toggleInput = document.getElementById(`relay-toggle-${i}`);
-    if (item && toggleInput) {
-        if (on) item.classList.add('active'); else item.classList.remove('active');
+    let stateTxt = document.getElementById(`state-text-${i}`);
+    
+    if (item && toggleInput && stateTxt) {
+        if (on) {
+            item.classList.add('active');
+            stateTxt.innerText = "ON";
+        } else {
+            item.classList.remove('active');
+            stateTxt.innerText = "OFF";
+        }
         if (toggleInput.checked !== on) toggleInput.checked = on;
     }
 
     let timerDisp = document.getElementById(`timer-display-${i}`);
     let timerText = document.getElementById(`timer-text-${i}`);
+    
     if (timerDisp && timerText) {
         let t = activeTimers[i];
         if (t.active) {
@@ -697,7 +719,6 @@ function updateGrid(){
                     timerText.innerText = `⏳ ${m}:${s} ➔ ${actionText}`;
                 }
             } else if (t.mode === 'schedule') {
-                let statusInfo = t.sExec ? 'Mulai Selesai' : 'Menunggu Mulai';
                 timerText.innerText = `⏰ ${t.startStr} ➔ ${t.finishStr}`;
             }
         } else {
@@ -776,7 +797,7 @@ function setAll(val){
   kirim();
 }
 
-// --- LOGIKA MODAL TIMER (TABS) ---
+// --- LOGIKA MODAL TIMER ---
 let currentModalRelay = null;
 let currentTimerMode = 'countdown'; 
 
@@ -794,7 +815,7 @@ function switchTimerTab(mode) {
 function openTimerModal(num) {
   currentModalRelay = num;
   document.getElementById('modal-relay-num').innerText = num;
-  switchTimerTab('countdown'); // Default tab
+  switchTimerTab('countdown'); 
   document.getElementById('timer-modal').style.display = 'flex';
 }
 
@@ -806,7 +827,6 @@ function applyTimer() {
   if (currentTimerMode === 'countdown') {
     let mins = parseInt(document.getElementById('timer-duration').value);
     let act = parseInt(document.getElementById('timer-action').value);
-    
     if(isNaN(mins) || mins <= 0) { alert("Durasi tidak valid!"); return; }
     
     activeTimers[currentModalRelay] = {
@@ -817,24 +837,20 @@ function applyTimer() {
     addLog(currentModalRelay, act === 1, `Set Timer (${mins}m)`);
     
   } else if (currentTimerMode === 'schedule') {
-    let startVal = document.getElementById('sch-start').value; // format HH:MM
+    let startVal = document.getElementById('sch-start').value;
     let finishVal = document.getElementById('sch-finish').value;
     let actStart = parseInt(document.getElementById('sch-action').value);
     
-    if(!startVal || !finishVal) { alert("Harap isi waktu mulai dan selesai!"); return; }
+    if(!startVal || !finishVal) { alert("Isi waktu mulai & selesai!"); return; }
     
     activeTimers[currentModalRelay] = {
        active: true, mode: 'schedule',
-       startStr: startVal,
-       finishStr: finishVal,
-       action: actStart, // action at Start
-       finishAct: actStart === 1 ? 0 : 1, // opposite action at Finish
-       sExec: false,
-       fExec: false
+       startStr: startVal, finishStr: finishVal,
+       action: actStart, finishAct: actStart === 1 ? 0 : 1,
+       sExec: false, fExec: false
     };
-    addLog(currentModalRelay, actStart === 1, `Set Jadwal (${startVal}-${finishVal})`);
+    addLog(currentModalRelay, actStart === 1, `Set Jadwal`);
   }
-  
   closeModal();
   updateGrid();
 }
@@ -845,21 +861,16 @@ function cancelTimer(num) {
   updateGrid();
 }
 
-// Loop Utama Timer (Tiap 1 Detik)
 setInterval(() => {
   let needsUpdate = false;
   let now = new Date();
-  
-  // Format waktu lokal (HH:MM) untuk mencocokkan jadwal
   let currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + 
                     now.getMinutes().toString().padStart(2, '0');
 
   for(let i=1; i<=4; i++) {
      let t = activeTimers[i];
-     
      if(t.active) {
-        needsUpdate = true; // Update UI Text
-        
+        needsUpdate = true;
         if (t.mode === 'countdown') {
            if(now.getTime() >= t.endTime) {
               data['relay'+i] = t.action;
@@ -869,24 +880,17 @@ setInterval(() => {
            }
         } 
         else if (t.mode === 'schedule') {
-           // Cek Waktu Mulai (Jika belum dieksekusi hari ini/sejak diset)
            if (currentHHMM === t.startStr && !t.sExec) {
-              data['relay'+i] = t.action;
-              t.sExec = true;
+              data['relay'+i] = t.action; t.sExec = true;
               addLog(i, data['relay'+i] === 1, 'Jadwal Mulai');
               kirim();
            }
-           // Cek Waktu Selesai (Hanya jika waktu mulai sudah terjadi, agar logis)
            if (currentHHMM === t.finishStr && !t.fExec && t.sExec) {
-              data['relay'+i] = t.finishAct;
-              t.fExec = true;
+              data['relay'+i] = t.finishAct; t.fExec = true;
               addLog(i, data['relay'+i] === 1, 'Jadwal Selesai');
               kirim();
            }
-           // Jika siklus Start dan Finish sudah terjadi semua, nonaktifkan jadwal
-           if (t.sExec && t.fExec) {
-              t.active = false;
-           }
+           if (t.sExec && t.fExec) t.active = false;
         }
      }
   }
