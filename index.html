@@ -101,7 +101,6 @@
   }
   body.light-theme .btn-primary { color: #fff; }
   body:not(.light-theme) .btn-primary { color: #000; text-shadow: none; }
-  
   .btn-primary:hover { background: var(--accent-hover); }
   #login-error { color: var(--danger); font-size: 0.85rem; margin-top: 15px; display: none; text-align: center; }
 
@@ -207,7 +206,6 @@
   .r-details h5 { font-size: 0.95rem; font-weight: 500; margin-bottom: 2px; color: var(--text-primary); }
   .r-details p { font-size: 0.75rem; color: var(--text-secondary); }
   
-  /* Update Switch Styles */
   .r-actions { display: flex; align-items: center; gap: 15px; }
   .btn-icon-small {
     background: var(--bg-main); border: 1px solid var(--border); color: var(--text-secondary);
@@ -248,13 +246,7 @@
   .log-badge.on { background: var(--accent-bg); color: var(--accent); }
   .log-badge.off { background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border); }
 
-  .placeholder-box {
-    background: var(--surface); border: 1px dashed var(--border); border-radius: 12px;
-    padding: 60px 20px; text-align: center; color: var(--text-secondary); margin-top: 20px;
-  }
-  .placeholder-box svg { margin-bottom: 15px; opacity: 0.5; }
-
-  /* --- MODAL TIMER --- */
+  /* --- MODAL TIMER (TABS INCLUDED) --- */
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
@@ -262,7 +254,7 @@
   }
   .modal-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; width: 100%; max-width: 360px;
+    border-radius: 12px; width: 100%; max-width: 380px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     animation: scaleIn 0.2s ease-out;
   }
@@ -274,6 +266,16 @@
   .modal-header h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
   .btn-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; }
   .btn-close:hover { color: var(--danger); }
+  
+  .modal-tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .m-tab { 
+    flex: 1; text-align: center; padding: 14px 10px; font-size: 0.85rem; 
+    cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; 
+    transition: 0.2s; font-weight: 500;
+  }
+  .m-tab:hover { background: var(--surface-hover); }
+  .m-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
   .modal-body { padding: 24px; }
   .form-group { margin-bottom: 15px; }
   .form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;}
@@ -284,6 +286,7 @@
   .form-input:focus { border-color: var(--accent); }
   .modal-actions { display: flex; gap: 12px; margin-top: 25px; }
   .modal-actions button { flex: 1; }
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
   @media (max-width: 1024px) {
     .sidebar { transform: translateX(-100%); z-index: 100; transition: 0.3s; }
@@ -316,24 +319,55 @@
 <div class="modal-overlay" id="timer-modal">
   <div class="modal-card">
     <div class="modal-header">
-      <h3>Set Timer - CH-<span id="modal-relay-num">1</span></h3>
+      <h3>Set Timer CH-<span id="modal-relay-num">1</span></h3>
       <button class="btn-close" onclick="closeModal()">✕</button>
     </div>
+    
+    <div class="modal-tabs">
+      <div class="m-tab active" id="tab-countdown" onclick="switchTimerTab('countdown')">Mode Durasi</div>
+      <div class="m-tab" id="tab-schedule" onclick="switchTimerTab('schedule')">Mode Jadwal</div>
+    </div>
+
     <div class="modal-body">
-      <div class="form-group">
-        <label>Durasi Timer (Menit)</label>
-        <input type="number" id="timer-duration" class="form-input" min="1" value="5">
+      <!-- BODY: COUNTDOWN -->
+      <div id="body-countdown">
+        <div class="form-group">
+          <label>Durasi Hitung Mundur (Menit)</label>
+          <input type="number" id="timer-duration" class="form-input" min="1" value="5">
+        </div>
+        <div class="form-group">
+          <label>Aksi Setelah Waktu Habis</label>
+          <select id="timer-action" class="form-input">
+            <option value="1">Turn ON (Hidupkan)</option>
+            <option value="0">Turn OFF (Matikan)</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Aksi Setelah Waktu Habis</label>
-        <select id="timer-action" class="form-input">
-          <option value="1">Turn ON (Hidupkan)</option>
-          <option value="0">Turn OFF (Matikan)</option>
-        </select>
+
+      <!-- BODY: SCHEDULE -->
+      <div id="body-schedule" style="display: none;">
+        <div class="time-row">
+          <div class="form-group">
+            <label>Waktu Mulai</label>
+            <input type="time" id="sch-start" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Waktu Selesai</label>
+            <input type="time" id="sch-finish" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Aksi Saat Waktu Mulai</label>
+          <select id="sch-action" class="form-input">
+            <option value="1">Turn ON (Selesai = OFF)</option>
+            <option value="0">Turn OFF (Selesai = ON)</option>
+          </select>
+        </div>
       </div>
+
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeModal()">Batal</button>
-        <button class="btn-primary" onclick="applyTimer()">Aktifkan Timer</button>
+        <button class="btn-primary" onclick="applyTimer()">Aktifkan</button>
       </div>
     </div>
   </div>
@@ -342,7 +376,6 @@
 <!-- MAIN APP -->
 <div class="app-container" id="app-content">
   
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
       <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
@@ -374,14 +407,13 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main-content">
     <header class="topbar">
       <div class="breadcrumbs">
         Overview <span style="margin: 0 6px;">/</span> <span id="breadcrumb-text">Control Center</span>
       </div>
       <div class="top-actions">
-        <div class="time-display" id="clock">00:00:00 UTC</div>
+        <div class="time-display" id="clock">00:00:00 WIB</div>
         
         <button class="btn-icon" onclick="toggleTheme()" title="Ganti Tema">
           <svg id="icon-moon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -445,7 +477,7 @@
                 <button class="btn-outline" onclick="setAll(0)">Turn All OFF</button>
               </div>
               <div class="relay-list" id="grid">
-                <!-- Rendered via JS initGrid() -->
+                <!-- Rendered via JS -->
               </div>
             </div>
           </div>
@@ -478,14 +510,12 @@
       <!-- ANALYTICS -->
       <div id="view-analytics" class="view-section">
         <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">Data Analytics</div>
-          </div>
+          <div class="panel-header"><div class="panel-title">Data Analytics</div></div>
           <div class="panel-body">
             <div class="placeholder-box">
               <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
               <h3>Data sedang direkam</h3>
-              <p style="margin-top: 10px; font-size: 0.9rem;">Statistik penggunaan listrik dan grafik durasi aktif relay akan muncul di sini setelah data mencukupi.</p>
+              <p style="margin-top: 10px; font-size: 0.9rem;">Statistik penggunaan listrik dan grafik durasi aktif relay akan muncul di sini.</p>
             </div>
           </div>
         </div>
@@ -494,14 +524,12 @@
       <!-- DEVICE CONFIG -->
       <div id="view-config" class="view-section">
         <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">Hardware Settings</div>
-          </div>
+          <div class="panel-header"><div class="panel-title">Hardware Settings</div></div>
           <div class="panel-body">
             <div class="placeholder-box">
               <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
               <h3>ESP32 Configuration</h3>
-              <p style="margin-top: 10px; font-size: 0.9rem;">Alat (ESP32) sedang berjalan dalam mode Over-The-Air (OTA) Updates. Konfigurasi pinout terkunci secara fisik.</p>
+              <p style="margin-top: 10px; font-size: 0.9rem;">Alat (ESP32) sedang berjalan dalam mode OTA. Konfigurasi pinout terkunci.</p>
             </div>
           </div>
         </div>
@@ -512,7 +540,7 @@
 </div>
 
 <script>
-// --- THEME TOGGLE LOGIC ---
+// --- UI BEHAVIORS ---
 function toggleTheme() {
   const body = document.body;
   body.classList.toggle('light-theme');
@@ -530,18 +558,16 @@ function switchTab(viewId, element, breadcrumbName) {
   document.getElementById('breadcrumb-text').innerText = breadcrumbName;
 }
 
-// --- LOGIN LOGIC ---
+// --- AUTH & INIT ---
 const PASSWORD_BENAR = "katanyasih";
 let intervalSync = null;
 
 function cekLogin() {
-  const input = document.getElementById('password-input').value;
-  if (input === PASSWORD_BENAR) {
+  if (document.getElementById('password-input').value === PASSWORD_BENAR) {
     localStorage.setItem('esp32_logged_in', 'true');
     initApp();
   } else {
-    const err = document.getElementById('login-error');
-    err.style.display = 'block';
+    document.getElementById('login-error').style.display = 'block';
     document.getElementById('password-input').value = '';
     const box = document.querySelector('.login-card');
     box.style.transform = 'translateX(10px)';
@@ -562,28 +588,22 @@ function initApp() {
 }
 
 window.onload = () => {
-  if (localStorage.getItem('house_control_theme') === 'light') {
-    document.body.classList.add('light-theme');
-    document.getElementById('icon-moon').style.display = 'none';
-    document.getElementById('icon-sun').style.display = 'block';
-  }
-  if (localStorage.getItem('esp32_logged_in') === 'true') {
-    initApp();
-  }
+  if (localStorage.getItem('house_control_theme') === 'light') toggleTheme(); // Revert to adjust icons
+  if (localStorage.getItem('esp32_logged_in') === 'true') initApp();
 };
 
-// --- CORE DATA & TIMERS ---
+// --- DATA LOGIC ---
 const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
 const pins = [15, 2, 4, 16];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
 let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false, logs = [];
 
-// Data state untuk timer
+// Struktur Data Timer yang Diperbarui (Mendukung Countdown dan Schedule)
 let activeTimers = {
-  1: { active: false, endTime: 0, action: '1' },
-  2: { active: false, endTime: 0, action: '1' },
-  3: { active: false, endTime: 0, action: '1' },
-  4: { active: false, endTime: 0, action: '1' }
+  1: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
+  2: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
+  3: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
+  4: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false }
 };
 
 setInterval(() => {
@@ -613,7 +633,6 @@ function renderLogs() {
   logList.innerHTML = html;
 }
 
-// Hanya membangun kerangka HTML sekali saat aplikasi dimuat untuk mencegah flicker DOM
 function initGrid() {
   let html = "";
   for(let i=1; i<=4; i++) {
@@ -648,14 +667,12 @@ function initGrid() {
   document.getElementById('grid').innerHTML = html;
 }
 
-// Memperbarui properti elemen secara dinamis tanpa merender ulang seluruh komponen
 function updateGrid(){
   let activeCount = 0;
   for(let i=1; i<=4; i++){
     let on = data['relay'+i] == 1;
     if (on) activeCount++;
     
-    // Update Toggle & Class
     let item = document.getElementById(`relay-item-${i}`);
     let toggleInput = document.getElementById(`relay-toggle-${i}`);
     if (item && toggleInput) {
@@ -663,20 +680,25 @@ function updateGrid(){
         if (toggleInput.checked !== on) toggleInput.checked = on;
     }
 
-    // Update Timer Display
     let timerDisp = document.getElementById(`timer-display-${i}`);
     let timerText = document.getElementById(`timer-text-${i}`);
     if (timerDisp && timerText) {
-        if (activeTimers[i].active) {
+        let t = activeTimers[i];
+        if (t.active) {
             timerDisp.style.display = "flex";
-            let rem = activeTimers[i].endTime - Date.now();
-            let actionText = activeTimers[i].action === '1' ? 'ON' : 'OFF';
-            if (rem <= 0) {
-                timerText.innerText = `00:00 ➔ ${actionText}`;
-            } else {
-                let m = Math.floor(rem / 60000).toString().padStart(2, '0');
-                let s = Math.floor((rem % 60000) / 1000).toString().padStart(2, '0');
-                timerText.innerText = `⏳ ${m}:${s} ➔ ${actionText}`;
+            if (t.mode === 'countdown') {
+                let rem = t.endTime - Date.now();
+                let actionText = t.action === 1 ? 'ON' : 'OFF';
+                if (rem <= 0) {
+                    timerText.innerText = `00:00 ➔ ${actionText}`;
+                } else {
+                    let m = Math.floor(rem / 60000).toString().padStart(2, '0');
+                    let s = Math.floor((rem % 60000) / 1000).toString().padStart(2, '0');
+                    timerText.innerText = `⏳ ${m}:${s} ➔ ${actionText}`;
+                }
+            } else if (t.mode === 'schedule') {
+                let statusInfo = t.sExec ? 'Mulai Selesai' : 'Menunggu Mulai';
+                timerText.innerText = `⏰ ${t.startStr} ➔ ${t.finishStr}`;
             }
         } else {
             timerDisp.style.display = "none";
@@ -754,12 +776,25 @@ function setAll(val){
   kirim();
 }
 
-// --- TIMER LOGIC ---
+// --- LOGIKA MODAL TIMER (TABS) ---
 let currentModalRelay = null;
+let currentTimerMode = 'countdown'; 
+
+function switchTimerTab(mode) {
+  currentTimerMode = mode;
+  document.getElementById('tab-countdown').classList.remove('active');
+  document.getElementById('tab-schedule').classList.remove('active');
+  document.getElementById('body-countdown').style.display = 'none';
+  document.getElementById('body-schedule').style.display = 'none';
+  
+  document.getElementById(`tab-${mode}`).classList.add('active');
+  document.getElementById(`body-${mode}`).style.display = 'block';
+}
 
 function openTimerModal(num) {
   currentModalRelay = num;
   document.getElementById('modal-relay-num').innerText = num;
+  switchTimerTab('countdown'); // Default tab
   document.getElementById('timer-modal').style.display = 'flex';
 }
 
@@ -768,21 +803,38 @@ function closeModal() {
 }
 
 function applyTimer() {
-  let mins = parseInt(document.getElementById('timer-duration').value);
-  let act = document.getElementById('timer-action').value;
-  
-  if(isNaN(mins) || mins <= 0) {
-    alert("Durasi timer tidak valid!");
-    return;
+  if (currentTimerMode === 'countdown') {
+    let mins = parseInt(document.getElementById('timer-duration').value);
+    let act = parseInt(document.getElementById('timer-action').value);
+    
+    if(isNaN(mins) || mins <= 0) { alert("Durasi tidak valid!"); return; }
+    
+    activeTimers[currentModalRelay] = {
+       active: true, mode: 'countdown',
+       endTime: Date.now() + (mins * 60000),
+       action: act
+    };
+    addLog(currentModalRelay, act === 1, `Set Timer (${mins}m)`);
+    
+  } else if (currentTimerMode === 'schedule') {
+    let startVal = document.getElementById('sch-start').value; // format HH:MM
+    let finishVal = document.getElementById('sch-finish').value;
+    let actStart = parseInt(document.getElementById('sch-action').value);
+    
+    if(!startVal || !finishVal) { alert("Harap isi waktu mulai dan selesai!"); return; }
+    
+    activeTimers[currentModalRelay] = {
+       active: true, mode: 'schedule',
+       startStr: startVal,
+       finishStr: finishVal,
+       action: actStart, // action at Start
+       finishAct: actStart === 1 ? 0 : 1, // opposite action at Finish
+       sExec: false,
+       fExec: false
+    };
+    addLog(currentModalRelay, actStart === 1, `Set Jadwal (${startVal}-${finishVal})`);
   }
   
-  activeTimers[currentModalRelay] = {
-     active: true,
-     endTime: Date.now() + (mins * 60000),
-     action: act
-  };
-  
-  addLog(currentModalRelay, act === '1', `Timer Diset (${mins}m)`);
   closeModal();
   updateGrid();
 }
@@ -793,19 +845,48 @@ function cancelTimer(num) {
   updateGrid();
 }
 
-// Timer Loop: mengecek sisa waktu setiap 1 detik
+// Loop Utama Timer (Tiap 1 Detik)
 setInterval(() => {
   let needsUpdate = false;
-  let now = Date.now();
+  let now = new Date();
+  
+  // Format waktu lokal (HH:MM) untuk mencocokkan jadwal
+  let currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + 
+                    now.getMinutes().toString().padStart(2, '0');
+
   for(let i=1; i<=4; i++) {
-     if(activeTimers[i].active) {
-        needsUpdate = true; // Update tampilan timer berjalan
-        if(now >= activeTimers[i].endTime) {
-           // Waktu habis, eksekusi perintah
-           data['relay'+i] = parseInt(activeTimers[i].action);
-           activeTimers[i].active = false; // Matikan status timer
-           addLog(i, data['relay'+i] === 1, 'Timer Executed');
-           kirim();
+     let t = activeTimers[i];
+     
+     if(t.active) {
+        needsUpdate = true; // Update UI Text
+        
+        if (t.mode === 'countdown') {
+           if(now.getTime() >= t.endTime) {
+              data['relay'+i] = t.action;
+              t.active = false; 
+              addLog(i, data['relay'+i] === 1, 'Timer Selesai');
+              kirim();
+           }
+        } 
+        else if (t.mode === 'schedule') {
+           // Cek Waktu Mulai (Jika belum dieksekusi hari ini/sejak diset)
+           if (currentHHMM === t.startStr && !t.sExec) {
+              data['relay'+i] = t.action;
+              t.sExec = true;
+              addLog(i, data['relay'+i] === 1, 'Jadwal Mulai');
+              kirim();
+           }
+           // Cek Waktu Selesai (Hanya jika waktu mulai sudah terjadi, agar logis)
+           if (currentHHMM === t.finishStr && !t.fExec && t.sExec) {
+              data['relay'+i] = t.finishAct;
+              t.fExec = true;
+              addLog(i, data['relay'+i] === 1, 'Jadwal Selesai');
+              kirim();
+           }
+           // Jika siklus Start dan Finish sudah terjadi semua, nonaktifkan jadwal
+           if (t.sExec && t.fExec) {
+              t.active = false;
+           }
         }
      }
   }
