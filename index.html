@@ -7,526 +7,421 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Library jsPDF untuk Export PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
   :root {
-    --bg-main: #050507;
-    --bg-sidebar: rgba(13, 13, 18, 0.75);
-    --surface: rgba(20, 20, 25, 0.6);
-    --surface-hover: rgba(30, 30, 38, 0.8);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-light: rgba(255, 255, 255, 0.15);
+    /* --- HIGH-END PALETTE --- */
+    --c-bg-deep: #0f1115;       /* Very dark charcoal */
+    --c-surface: #181a20;       /* Lighter charcoal for panels */
+    --c-surface-hover: #1f222a; /* Hover state */
+    --c-border: #2a2e39;        /* Subtle border */
     
-    --text-primary: #ffffff;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --c-text-main: #e8ded1;     /* Light Sand */
+    --c-text-muted: #9a9388;    /* Dark Sand */
     
-    --accent: #d4af37;
-    --accent-hover: #f0d588;
-    --accent-bg: rgba(212, 175, 55, 0.15);
-    --accent-glow: rgba(212, 175, 55, 0.4);
-    
-    --switch-bg: rgba(255, 255, 255, 0.1);
-    --banner-gradient: linear-gradient(135deg, rgba(20,20,25,0.85) 0%, rgba(20,20,25,0.3) 100%);
-    
-    --success: #10b981;
-    --success-bg: rgba(16, 185, 129, 0.15);
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    
-    --blob-1: #d4af37;
-    --blob-2: #2563eb;
+    --c-electric: #00f0ff;      /* Electric Blue */
+    --c-electric-glow: rgba(0, 240, 255, 0.25);
+    --c-electric-bg: rgba(0, 240, 255, 0.08);
+
+    --danger: #ff4757;
+    --success: #2ed573;
+    --warning: #ffa502;
   }
 
   body.light-theme {
-    --bg-main: #f0f2f5;
-    --bg-sidebar: rgba(255, 255, 255, 0.85);
-    --surface: rgba(255, 255, 255, 0.7);
-    --surface-hover: rgba(255, 255, 255, 0.95);
-    --border: rgba(0, 0, 0, 0.08);
-    --border-light: rgba(0, 0, 0, 0.15);
+    --c-bg-deep: #e8ded1;       
+    --c-surface: #f4ece1;       
+    --c-surface-hover: #ffffff; 
+    --c-border: #c9bcab;        
     
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
+    --c-text-main: #0f1115;     
+    --c-text-muted: #5e6472;    
     
-    --accent: #b8860b; 
-    --accent-bg: rgba(184, 134, 11, 0.1);
-    --accent-glow: rgba(184, 134, 11, 0.3);
-    
-    --switch-bg: rgba(0, 0, 0, 0.15);
-    --banner-gradient: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 100%);
-    
-    --blob-1: #fde047;
-    --blob-2: #93c5fd;
+    --c-electric: #0088ff;      
+    --c-electric-glow: rgba(0, 136, 255, 0.3);
+    --c-electric-bg: rgba(0, 136, 255, 0.1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
+  /* OVERALL LAYOUT: Fit to screen */
   html, body {
-    width: 100%;
-    min-height: 100vh;
+    width: 100%; height: 100vh; overflow: hidden; /* Mencegah scroll body */
     font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    overflow-x: hidden;
-    transition: background-color 0.4s ease, color 0.4s ease;
-  }
-
-  /* --- AMBIENT BACKGROUND ANIMATION --- */
-  .ambient-bg {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1; overflow: hidden; pointer-events: none;
-  }
-  .blob {
-    position: absolute; border-radius: 50%; filter: blur(80px);
-    opacity: 0.4; animation: floatBlob 20s infinite alternate ease-in-out;
-  }
-  .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--blob-1); animation-delay: 0s; }
-  .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: var(--blob-2); animation-delay: -5s; opacity: 0.2; }
-  @keyframes floatBlob {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(10%, 15%) scale(1.1); }
-    100% { transform: translate(-5%, 5%) scale(0.9); }
-  }
-
-  .glass-panel {
-    background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background-color: var(--c-bg-deep); color: var(--c-text-main);
+    transition: background-color 0.3s;
   }
 
   /* --- LOGIN PORTAL --- */
   .login-portal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(20px);
-    padding: 15px;
+    display: flex; justify-content: center; align-items: center; z-index: 9999; 
+    background: var(--c-bg-deep); padding: 20px;
   }
-  .login-card { padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 400px; text-align: center; }
-  
-  .login-header svg { color: var(--accent); margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
-  .login-header h2 { font-size: clamp(1.4rem, 4vw, 1.8rem); font-weight: 600; letter-spacing: -0.5px; }
-  .login-header p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 25px; }
-  
-  .input-group { margin-bottom: 20px; text-align: left; }
-  .input-group label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; font-weight: 500;}
-  .login-input {
-    width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
-    color: var(--text-primary); border-radius: 12px; outline: none; transition: 0.3s; font-size: 1rem; letter-spacing: 2px;
+  .login-card { 
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    padding: 40px; width: 100%; max-width: 380px; border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; 
   }
-  body.light-theme .login-input { background: rgba(255,255,255,0.5); }
-  .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
+  .login-header svg { color: var(--c-electric); margin-bottom: 15px; filter: drop-shadow(0 0 8px var(--c-electric-glow)); }
+  .login-header h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: 1px; }
+  .login-header p { color: var(--c-text-muted); font-size: 0.85rem; margin-bottom: 25px; }
+  
+  .form-group { margin-bottom: 20px; text-align: left; }
+  .form-group label { display: block; font-size: 0.75rem; color: var(--c-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+  .form-input {
+    width: 100%; padding: 12px 16px; background: var(--c-bg-deep); border: 1px solid var(--c-border);
+    color: var(--c-text-main); border-radius: 8px; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; font-size: 0.95rem;
+  }
+  .form-input:focus { border-color: var(--c-electric); box-shadow: 0 0 0 3px var(--c-electric-bg); }
   
   .btn-primary {
-    width: 100%; padding: 12px 20px; border: none; border-radius: 12px; font-weight: 600; 
-    cursor: pointer; transition: 0.3s; font-size: 0.95rem; font-family: 'Poppins', sans-serif;
-    background: var(--accent); color: #000; box-shadow: 0 8px 20px var(--accent-glow);
+    width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: 0.2s; background: var(--c-electric); color: #000; box-shadow: 0 4px 15px var(--c-electric-glow);
   }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--c-electric-glow); filter: brightness(1.1); }
   body.light-theme .btn-primary { color: #fff; }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px var(--accent-glow); filter: brightness(1.1); }
   
-  #login-error { color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 8px;}
+  #login-error { color: var(--danger); font-size: 0.8rem; margin-top: 15px; display: none; }
 
-  /* --- APP LAYOUT (FLEXIBLE RESPONSIVE) --- */
-  .app-container { display: none; width: 100%; min-height: 100vh; position: relative; }
+  /* --- APP CONTAINER (CSS GRID) --- */
+  .app-container { 
+    display: flex; width: 100%; height: 100vh; overflow: hidden;
+  }
   
+  /* SIDEBAR */
   .sidebar {
-    width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; 
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; backdrop-filter: blur(20px);
+    width: 260px; background: var(--c-surface); border-right: 1px solid var(--c-border);
+    display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: transform 0.3s;
   }
-  .brand { padding: 25px 20px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.2rem; border-bottom: 1px solid var(--border);}
-  .brand svg { color: var(--accent); filter: drop-shadow(0 0 8px var(--accent-glow)); flex-shrink: 0; }
+  .brand { padding: 24px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.1rem; border-bottom: 1px solid var(--c-border); letter-spacing: 1px;}
+  .brand svg { color: var(--c-electric); flex-shrink: 0; }
   
-  .nav-menu { padding: 20px 12px; flex: 1; overflow-y: auto; }
-  .nav-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin: 10px 8px 12px; font-weight: 600; }
+  .nav-menu { padding: 20px 15px; flex: 1; overflow-y: auto; }
+  .nav-label { font-size: 0.7rem; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin: 10px 10px 12px; font-weight: 500; }
   .nav-item {
-    display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: var(--text-secondary);
-    border-radius: 10px; cursor: pointer; transition: 0.3s; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--c-text-muted);
+    border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500;
   }
-  .nav-item.active { background: var(--accent-bg); color: var(--accent); }
-  .nav-item:hover:not(.active) { background: var(--surface-hover); color: var(--text-primary); }
+  .nav-item.active { background: var(--c-electric-bg); color: var(--c-electric); font-weight: 600;}
+  .nav-item:hover:not(.active) { background: var(--c-surface-hover); color: var(--c-text-main); }
   
-  .user-profile { padding: 18px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.1); }
-  .avatar { 
-    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-    background: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150') center/cover; 
-    border: 2px solid var(--accent); box-shadow: 0 0 10px var(--accent-glow);
-  }
-  .user-info { overflow: hidden; }
-  .user-info h4 { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-info p { font-size: 0.7rem; color: var(--accent); font-weight: 500;}
+  .user-profile { padding: 20px; border-top: 1px solid var(--c-border); display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150') center/cover; border: 2px solid var(--c-border); }
+  .user-info h4 { font-size: 0.85rem; font-weight: 600; color: var(--c-text-main);}
+  .user-info p { font-size: 0.7rem; color: var(--c-electric); }
 
-  .main-content { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; width: calc(100% - 260px); }
-  
-  .topbar {
-    height: 75px; border-bottom: 1px solid var(--border); display: flex; align-items: center;
-    justify-content: space-between; padding: 0 clamp(15px, 3vw, 35px); background: var(--bg-sidebar); 
-    position: sticky; top: 0; z-index: 90; backdrop-filter: blur(20px);
+  /* MAIN CONTENT */
+  .main-content { 
+    flex: 1; display: flex; flex-direction: column; min-width: 0; /* Prevent flex overflow */
+    background: var(--c-bg-deep); height: 100vh;
   }
-  .menu-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 5px; }
   
-  .breadcrumbs { font-size: clamp(0.85rem, 1.5vw, 0.95rem); color: var(--text-secondary); display: flex; align-items: center; gap: 8px; font-weight: 500;}
-  .breadcrumbs span { color: var(--text-primary); font-weight: 600; }
-  
-  .top-actions { display: flex; align-items: center; gap: 10px; }
-  .time-display { font-size: 0.8rem; font-weight: 600; color: var(--accent); background: var(--accent-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); letter-spacing: 0.5px; white-space: nowrap;}
+  /* TOPBAR */
+  .topbar {
+    height: 70px; border-bottom: 1px solid var(--c-border); display: flex; align-items: center;
+    justify-content: space-between; padding: 0 30px; background: var(--c-surface); flex-shrink: 0;
+  }
+  .breadcrumbs { font-size: 0.85rem; color: var(--c-text-muted); display: flex; align-items: center; gap: 8px; }
+  .breadcrumbs span { color: var(--c-text-main); font-weight: 600; }
+  .top-actions { display: flex; align-items: center; gap: 12px; }
+  .time-display { font-size: 0.8rem; font-weight: 600; color: var(--c-electric); border: 1px solid var(--c-border); padding: 6px 12px; border-radius: 6px; }
   
   .btn-icon {
-    background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
-    width: 38px; height: 38px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; flex-shrink: 0;
+    background: transparent; border: 1px solid var(--c-border); color: var(--c-text-muted);
+    width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;
   }
-  .btn-icon:hover { background: var(--surface-hover); color: var(--accent); border-color: var(--accent); }
-  
-  .btn-outline { 
-    background: transparent; border: 1px solid var(--border); color: var(--text-secondary); 
-    padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.3s; white-space: nowrap;
-  }
-  .btn-outline:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger); }
-  
-  .content-wrapper { padding: clamp(15px, 3vw, 30px); flex: 1; }
-  .view-section { display: none; animation: fadeInScale 0.3s ease-out; }
-  .view-section.active-view { display: block; }
-  @keyframes fadeInScale { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .btn-icon:hover { background: var(--c-surface-hover); color: var(--c-electric); border-color: var(--c-electric); }
+  .btn-outline { background: transparent; border: 1px solid var(--c-border); color: var(--c-text-muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s;}
+  .btn-outline:hover { background: rgba(255, 71, 87, 0.1); color: var(--danger); border-color: var(--danger); }
 
-  /* --- PROJECT BANNER --- */
-  .project-banner {
-    width: 100%; margin-bottom: 25px; 
-    display: flex; flex-direction: column; justify-content: center; padding: clamp(20px, 4vw, 35px); position: relative; overflow: hidden;
-    background: var(--banner-gradient), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200') right center/cover no-repeat;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  /* DASHBOARD WRAPPER */
+  .content-wrapper { 
+    padding: 24px 30px; flex: 1; overflow-y: auto; 
+    display: flex; flex-direction: column; gap: 20px;
   }
-  .project-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); pointer-events: none; }
-  .banner-tag { background: var(--accent); color: #000; font-size: 0.65rem; font-weight: 700; padding: 5px 12px; border-radius: 30px; display: inline-block; margin-bottom: 12px; width: max-content; box-shadow: 0 4px 12px var(--accent-glow); letter-spacing: 1px;}
-  .project-banner h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);}
-  .project-banner p { font-size: clamp(0.85rem, 1.5vw, 0.95rem); color: rgba(255,255,255,0.85); max-width: 600px; line-height: 1.5; text-shadow: 0 1px 4px rgba(0,0,0,0.5);}
+  .view-section { display: none; height: 100%; flex-direction: column; }
+  .view-section.active-view { display: flex; animation: fade 0.3s ease; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* KPI ROW */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex-shrink: 0; }
+  .kpi-card { 
+    background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px;
+    padding: 20px; display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .kpi-title { font-size: 0.75rem; color: var(--c-text-muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+  .kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--c-text-main); line-height: 1;}
+  .kpi-status { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; margin-top: 10px; display: inline-block; font-weight: 600;}
+  .status-ok { background: var(--c-electric-bg); color: var(--c-electric); }
+  .status-warn { background: rgba(255, 165, 2, 0.1); color: var(--warning); }
+  .status-err { background: rgba(255, 71, 87, 0.1); color: var(--danger); }
+
+  /* MAIN WORKSPACE GRID */
+  .workspace-grid { 
+    display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; 
+    flex: 1; min-height: 0; /* Important for inner scrolling */
+  }
+
+  .panel { 
+    background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--c-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: rgba(0,0,0,0.2);}
+  .panel-title { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
+  .panel-title svg { color: var(--c-electric); }
   
-  /* --- KPI GRID --- */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
-  .kpi-card { padding: 20px; display: flex; align-items: flex-start; justify-content: space-between; transition: 0.3s;}
-  .kpi-title { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
-  .kpi-value { font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px;}
-  .kpi-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; margin-top: 10px; display: inline-block; font-weight: 600; letter-spacing: 0.5px;}
-  .status-ok { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2);}
-  .status-err { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);}
-  .status-warn { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2);}
+  .panel-body { padding: 20px; flex: 1; overflow-y: auto; display: flex; flex-direction: column;}
+  .panel-body::-webkit-scrollbar { width: 6px; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 10px; }
+
+  /* RELAY GRID */
+  .master-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; flex-shrink: 0;}
+  .master-controls button { padding: 10px; font-size: 0.85rem; }
   
-  /* --- DASHBOARD GRID RESPONSIVE --- */
-  .dashboard-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; }
-  .panel { display: flex; flex-direction: column; height: 100%; }
-  .panel-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .panel-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 10px;}
-  .panel-title svg { color: var(--accent); flex-shrink: 0; }
-  .panel-body { padding: 20px; flex: 1; }
-  
-  /* --- SMART RELAY CARDS --- */
-  .relay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+  .relay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-content: start; }
 
   .relay-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-    padding: 20px; display: flex; flex-direction: column; transition: 0.3s;
-    position: relative; overflow: hidden; backdrop-filter: blur(10px);
+    background: var(--c-bg-deep); border: 1px solid var(--c-border); border-radius: 12px;
+    padding: 20px; display: flex; flex-direction: column; transition: 0.2s; position: relative;
   }
-  .relay-card:hover { border-color: var(--border-light); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-  
-  .relay-card.active { background: var(--accent-bg); border-color: var(--accent); box-shadow: 0 8px 25px var(--accent-glow), inset 0 0 15px rgba(212, 175, 55, 0.05); }
+  .relay-card:hover { border-color: var(--c-electric); }
+  .relay-card.active { border-color: var(--c-electric); box-shadow: 0 0 20px var(--c-electric-bg); }
 
   .rc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
   .rc-icon {
-    width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-    display: flex; justify-content: center; align-items: center; color: var(--text-muted); transition: 0.3s; flex-shrink: 0;
+    width: 44px; height: 44px; border-radius: 10px; background: var(--c-surface); border: 1px solid var(--c-border);
+    display: flex; justify-content: center; align-items: center; color: var(--c-text-muted); transition: 0.3s;
   }
-  body.light-theme .rc-icon { background: rgba(0,0,0,0.05); }
-  @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
-  .relay-card.active .rc-icon { background: var(--accent); color: #000; border-color: var(--accent); animation: pulseGlow 2s infinite; }
+  .relay-card.active .rc-icon { background: var(--c-electric-bg); color: var(--c-electric); border-color: var(--c-electric); box-shadow: 0 0 15px var(--c-electric-glow);}
 
-  .rc-title h5 { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-  .rc-title p { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;}
+  .rc-title h5 { font-size: 1.05rem; font-weight: 600; color: var(--c-text-main); }
+  .rc-title p { font-size: 0.7rem; color: var(--c-text-muted); font-weight: 500;}
 
-  .rc-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);}
-  body.light-theme .rc-bottom { border-top: 1px solid rgba(0,0,0,0.05); }
+  .rc-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--c-border);}
   
-  .state-text { font-size: 1.1rem; font-weight: 800; color: var(--text-muted); transition: 0.3s; }
-  .relay-card.active .state-text { color: var(--accent); text-shadow: 0 0 8px var(--accent-glow);}
+  .state-text { font-size: 1.1rem; font-weight: 700; color: var(--c-text-muted); }
+  .relay-card.active .state-text { color: var(--c-electric); text-shadow: 0 0 8px var(--c-electric-glow);}
 
-  .btn-icon-small {
-    background: transparent; border: 1px solid var(--border); color: var(--text-secondary); width: 36px; height: 36px; border-radius: 8px;
-    display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; backdrop-filter: blur(5px); flex-shrink: 0;
-  }
-  .btn-icon-small:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-bg); }
-
-  .switch { position: relative; display: inline-block; width: 52px; height: 28px; flex-shrink: 0; }
+  /* SLEEK SWITCH */
+  .switch { position: relative; display: inline-block; width: 48px; height: 24px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 34px; border: 1px solid var(--border);}
-  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-  input:checked + .slider { background-color: var(--accent); border-color: var(--accent);}
-  input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--c-border); transition: .3s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--c-text-muted); transition: .3s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--c-electric-bg); border: 1px solid var(--c-electric);}
+  input:checked + .slider:before { transform: translateX(24px); background-color: var(--c-electric); box-shadow: 0 0 8px var(--c-electric);}
   
+  /* TIMER COMPACT */
   .timer-display {
-    display: none; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px;
-    border: 1px solid var(--accent); width: fit-content; margin-top: 4px; box-shadow: inset 0 0 8px var(--accent-glow);
+    display: none; align-items: center; gap: 6px; background: var(--c-surface); padding: 4px 8px; border-radius: 6px;
+    border: 1px solid var(--c-electric); width: fit-content; margin-top: 8px;
   }
-  body.light-theme .timer-display { background: #fff; }
-  .timer-text { font-size: 0.75rem; font-weight: 600; color: var(--accent); }
-  .btn-cancel-timer {
-    background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); cursor: pointer;
-    width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;
-  }
-  .btn-cancel-timer:hover { background: var(--danger); color: #fff; }
+  .timer-text { font-size: 0.7rem; font-weight: 600; color: var(--c-electric); }
+  .btn-cancel-timer { background: none; border: none; color: var(--danger); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  .master-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  
-  /* --- LOG TABLE RESPONSIVE --- */
-  .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .log-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; min-width: 320px; }
-  .log-table th, .log-table td { padding: 12px 10px; text-align: left; font-size: 0.8rem; white-space: nowrap; }
-  .log-table th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding-bottom: 2px;}
-  .log-table td { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .log-table td:first-child { border-left: 1px solid var(--border); border-radius: 8px 0 0 8px; }
-  .log-table td:last-child { border-right: 1px solid var(--border); border-radius: 0 8px 8px 0; }
-  
-  .log-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;}
-  .log-badge.on { background: var(--accent-bg); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow);}
-  .log-badge.off { background: rgba(0,0,0,0.2); color: var(--text-secondary); border: 1px solid var(--border); }
-  body.light-theme .log-badge.off { background: rgba(255,255,255,0.5); }
+  /* LOG TABLE COMPACT */
+  .log-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .log-table th { font-size: 0.7rem; text-transform: uppercase; color: var(--c-text-muted); padding: 10px; border-bottom: 1px solid var(--c-border); position: sticky; top: 0; background: var(--c-surface); z-index: 1;}
+  .log-table td { padding: 12px 10px; border-bottom: 1px solid var(--c-border); font-size: 0.8rem; }
+  .log-table tr:hover td { background: var(--c-surface-hover); }
+  .log-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: var(--c-bg-deep); border: 1px solid var(--c-border);}
+  .log-badge.on { color: var(--c-electric); border-color: var(--c-electric); }
 
-  /* --- MODAL TIMER --- */
+  /* MODAL */
   .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-    display: none; justify-content: center; align-items: center; z-index: 10000;
-    padding: 15px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+    display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px; backdrop-filter: blur(5px);
   }
-  .modal-card { width: 100%; max-width: 380px; animation: scaleIn 0.3s ease-out; }
-  .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .modal-header h3 { font-size: 1.1rem; font-weight: 600; }
-  .btn-close { background: rgba(255,255,255,0.1); border: none; color: var(--text-primary); cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-  .btn-close:hover { background: var(--danger); color: #fff; }
+  .modal-card { width: 100%; max-width: 360px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; overflow: hidden; animation: scaleIn 0.2s ease; }
+  @keyframes scaleIn { from { transform: scale(0.95); opacity: 0;} to { transform: scale(1); opacity: 1;} }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--c-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);}
+  .modal-header h3 { font-size: 1rem; font-weight: 600; }
+  .btn-close { background: none; border: none; color: var(--c-text-muted); cursor: pointer; font-size: 1.2rem; }
+  .btn-close:hover { color: var(--danger); }
   
-  .modal-tabs { display: flex; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); }
-  .m-tab { flex: 1; text-align: center; padding: 14px 10px; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: 0.3s; font-weight: 600; }
-  .m-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); background: var(--accent-bg); }
+  .modal-tabs { display: flex; border-bottom: 1px solid var(--c-border); }
+  .m-tab { flex: 1; text-align: center; padding: 12px; font-size: 0.8rem; cursor: pointer; color: var(--c-text-muted); font-weight: 600; transition: 0.2s;}
+  .m-tab.active { color: var(--c-electric); background: var(--c-electric-bg); border-bottom: 2px solid var(--c-electric); }
   .modal-body { padding: 20px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;}
-  .form-input { width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text-primary); border-radius: 10px; outline: none; font-family: 'Poppins', sans-serif; transition: 0.3s; font-size: 0.9rem;}
-  body.light-theme .form-input { background: rgba(255,255,255,0.5); }
-  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
-  .modal-actions { display: flex; gap: 12px; margin-top: 25px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions button { flex: 1; padding: 10px; font-size: 0.85rem; }
 
-  /* --- MEDIA QUERY BREAKPOINTS UNTUK RESPONSIF SEMPURNA --- */
-  @media (max-width: 1024px) {
-    .sidebar { transform: translateX(-100%); }
-    .sidebar.mobile-open { transform: translateX(0); }
-    .main-content { margin-left: 0; width: 100%; }
-    .menu-toggle { display: flex; }
-    .dashboard-grid { grid-template-columns: 1fr; }
-  }
+  /* RESPONSIVE RESPONSIVE */
+  .menu-toggle { display: none; background: none; border: none; color: var(--c-text-main); cursor: pointer; }
   
-  @media (max-width: 600px) {
-    .topbar { padding: 0 15px; height: 65px; }
-    .content-wrapper { padding: 15px; }
-    .project-banner { padding: 20px; min-height: 160px; }
+  @media (max-width: 1024px) {
+    .sidebar { position: fixed; transform: translateX(-100%); }
+    .sidebar.mobile-open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.8);}
+    .main-content { margin-left: 0; width: 100%; }
+    .menu-toggle { display: block; margin-right: 15px;}
+    .workspace-grid { grid-template-columns: 1fr; grid-template-rows: auto 400px; } /* Susun ke bawah */
+    .content-wrapper { overflow-y: auto; height: 100%; } /* Izinkan scroll vertikal keseluruhan di mobile */
+    body, html, .app-container { overflow: auto; height: auto; min-height: 100vh;} /* Lepas kunci height di mobile */
+    .main-content { height: auto; min-height: 100vh; }
+  }
+  @media (max-width: 768px) {
     .kpi-grid { grid-template-columns: 1fr; }
     .relay-grid { grid-template-columns: 1fr; }
-    .master-controls { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<div class="ambient-bg">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-</div>
-
-<!-- LOGIN PORTAL -->
 <div class="login-portal" id="login-portal">
-  <div class="login-card glass-panel">
+  <div class="login-card">
     <div class="login-header">
-      <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      <svg viewBox="0 0 24 24" width="42" height="42" stroke="currentColor" stroke-width="1.5" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
       <h2>HOUSE CONTROL</h2>
       <p>Secure Enterprise Gateway</p>
     </div>
-    <div class="input-group">
+    <div class="form-group">
       <label>Access Key</label>
-      <input type="password" class="login-input" id="password-input" placeholder="••••••••" onkeypress="handleKeyPress(event)">
+      <input type="password" class="form-input" id="password-input" placeholder="••••••••" onkeypress="handleKeyPress(event)">
     </div>
-    <button class="btn-primary" onclick="cekLogin()">AUTHORIZE ACCESS</button>
+    <button class="btn-primary" onclick="cekLogin()">AUTHORIZE</button>
     <p id="login-error">Akses Ditolak. Kunci tidak valid.</p>
   </div>
 </div>
 
-<!-- TIMER MODAL -->
 <div class="modal-overlay" id="timer-modal">
-  <div class="modal-card glass-panel">
+  <div class="modal-card">
     <div class="modal-header">
-      <h3>Setel Timer <span style="color:var(--accent)">CH-<span id="modal-relay-num">1</span></span></h3>
-      <button class="btn-close" onclick="closeModal()"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <h3>Setel Timer <span style="color:var(--c-electric)">CH-<span id="modal-relay-num">1</span></span></h3>
+      <button class="btn-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-tabs">
-      <div class="m-tab active" id="tab-countdown" onclick="switchTimerTab('countdown')">Hitung Mundur</div>
-      <div class="m-tab" id="tab-schedule" onclick="switchTimerTab('schedule')">Jadwal Pintar</div>
+      <div class="m-tab active" id="tab-countdown" onclick="switchTimerTab('countdown')">Durasi</div>
+      <div class="m-tab" id="tab-schedule" onclick="switchTimerTab('schedule')">Jadwal</div>
     </div>
     <div class="modal-body">
       <div id="body-countdown">
         <div class="form-group">
-          <label>Durasi Aktif (Menit)</label>
+          <label>Waktu (Menit)</label>
           <input type="number" id="timer-duration" class="form-input" min="1" value="5">
         </div>
         <div class="form-group">
-          <label>Skenario Otomatisasi</label>
+          <label>Skenario</label>
           <select id="timer-action" class="form-input">
-            <option value="0">Nyala sekarang, Mati saat durasi habis</option>
-            <option value="1">Mati sekarang, Nyala saat durasi habis</option>
+            <option value="0">Nyala sekarang, Mati nanti</option>
+            <option value="1">Mati sekarang, Nyala nanti</option>
           </select>
         </div>
       </div>
       <div id="body-schedule" style="display: none;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div class="form-group">
-            <label>Mulai</label>
-            <input type="time" id="sch-start" class="form-input">
-          </div>
-          <div class="form-group">
-            <label>Selesai</label>
-            <input type="time" id="sch-finish" class="form-input">
-          </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group"><label>Mulai</label><input type="time" id="sch-start" class="form-input"></div>
+          <div class="form-group"><label>Selesai</label><input type="time" id="sch-finish" class="form-input"></div>
         </div>
         <div class="form-group">
-          <label>Aksi Saat Waktu Mulai</label>
+          <label>Aksi Mulai</label>
           <select id="sch-action" class="form-input">
-            <option value="1">Turn ON (Lalu OFF selesai)</option>
-            <option value="0">Turn OFF (Lalu ON selesai)</option>
+            <option value="1">Turn ON (Selesai = OFF)</option>
+            <option value="0">Turn OFF (Selesai = ON)</option>
           </select>
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-primary" style="background:transparent; border:1px solid var(--border); color:var(--text-primary);" onclick="closeModal()">Batal</button>
-        <button class="btn-primary" onclick="applyTimer()">Terapkan</button>
+        <button class="btn-outline" onclick="closeModal()">Batal</button>
+        <button class="btn-primary" onclick="applyTimer()">Simpan</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div class="app-container" id="app-content">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-      HOUSE CONTROL
+      <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+      H-CONTROL
     </div>
     <div class="nav-menu">
-      <div class="nav-label">Main Menu</div>
+      <div class="nav-label">Menu</div>
       <div class="nav-item active" onclick="switchTab('control', this, 'Dashboard')">
-        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        Dashboard
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Dashboard
       </div>
-      <div class="nav-label" style="margin-top: 25px;">Pengaturan</div>
-      <div class="nav-item" onclick="switchTab('config', this, 'Sistem Hardware')">
-        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Sistem Hardware
+      <div class="nav-label" style="margin-top: 20px;">Sistem</div>
+      <div class="nav-item" onclick="switchTab('config', this, 'Hardware')">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Hardware
       </div>
     </div>
     <div class="user-profile">
       <div class="avatar"></div>
-      <div class="user-info">
-        <h4>Surya Pramuditya P.</h4>
-        <p>TRPL • B26006</p>
-      </div>
+      <div class="user-info"><h4>Surya Pramuditya P.</h4><p>TRPL • B26006</p></div>
     </div>
   </aside>
 
   <main class="main-content">
     <header class="topbar">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button class="menu-toggle" onclick="toggleSidebar()" title="Menu">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div style="display: flex; align-items: center;">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
-        <div class="breadcrumbs">
-          Aplikasi <span id="breadcrumb-text">Dashboard</span>
-        </div>
+        <div class="breadcrumbs">Aplikasi <span id="breadcrumb-text">Dashboard</span></div>
       </div>
       <div class="top-actions">
         <div class="time-display" id="clock">00:00:00 WIB</div>
         <button class="btn-icon" onclick="toggleTheme()" title="Ganti Tema">
-          <svg id="icon-moon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-          <svg id="icon-sun" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg id="icon-moon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg id="icon-sun" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
         <button class="btn-outline" onclick="logout()">Keluar</button>
       </div>
     </header>
 
     <div class="content-wrapper">
-      <!-- CONTROL CENTER -->
       <div id="view-control" class="view-section active-view">
-
-        <div class="project-banner glass-panel">
-          <div class="banner-tag">IOT ENTERPRISE MODULE</div>
-          <h2>Smart Relay Control</h2>
-          <p>Sistem antarmuka cerdas 4-saluran relai berbasis ESP32 dengan sinkronisasi Firebase Realtime Database.</p>
-        </div>
         
         <div class="kpi-grid">
-          <div class="kpi-card glass-panel">
-            <div><div class="kpi-title">Koneksi Cloud</div><div class="kpi-value" id="db-status">Menghubungkan</div><div class="kpi-status status-warn" id="db-badge">Memeriksa Jaringan</div></div>
-          </div>
-          <div class="kpi-card glass-panel">
-            <div><div class="kpi-title">Status Hardware</div><div class="kpi-value" id="esp-status">Sinkronisasi...</div><div class="kpi-status status-warn" id="esp-badge">Menunggu Sinyal</div></div>
-          </div>
-          <div class="kpi-card glass-panel">
-            <div><div class="kpi-title">Relay Aktif</div><div class="kpi-value" id="active-count">0 / 4</div><div class="kpi-status status-ok">Beroperasi Normal</div></div>
-          </div>
+          <div class="kpi-card"><div><div class="kpi-title">Koneksi Cloud</div><div class="kpi-value" id="db-status">--</div><div class="kpi-status status-warn" id="db-badge">Connecting</div></div></div>
+          <div class="kpi-card"><div><div class="kpi-title">ESP32 Status</div><div class="kpi-value" id="esp-status">--</div><div class="kpi-status status-warn" id="esp-badge">Syncing</div></div></div>
+          <div class="kpi-card"><div><div class="kpi-title">Active Relays</div><div class="kpi-value" id="active-count">0 / 4</div><div class="kpi-status status-ok">Operasional</div></div></div>
         </div>
 
-        <div class="dashboard-grid">
-          <div class="panel glass-panel">
+        <div class="workspace-grid">
+          <!-- PANEL KIRI: RELAY -->
+          <div class="panel">
             <div class="panel-header">
-              <div class="panel-title"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Pusat Kendali Relay</div>
+              <div class="panel-title"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Kontrol Unit</div>
             </div>
             <div class="panel-body">
               <div class="master-controls">
                 <button class="btn-primary" onclick="setAll(1)">ALL ON</button>
-                <button class="btn-primary" style="background:transparent; border:1px solid var(--border); color:var(--text-primary);" onclick="setAll(0)">ALL OFF</button>
+                <button class="btn-outline" onclick="setAll(0)">ALL OFF</button>
               </div>
               <div class="relay-grid" id="grid"></div>
             </div>
           </div>
 
-          <div class="panel glass-panel">
+          <!-- PANEL KANAN: LOGS -->
+          <div class="panel">
             <div class="panel-header">
-              <div class="panel-title"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Log Aktivitas</div>
-              <button class="btn-icon-small" title="Unduh PDF Audit Trail" onclick="exportLogsPDF()">
-                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              <div class="panel-title"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> Audit Log</div>
+              <button class="btn-icon" style="width:28px; height:28px;" title="Export PDF" onclick="exportLogsPDF()">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
               </button>
             </div>
-            <div class="panel-body" style="padding-top: 10px;">
-              <div class="table-responsive">
-                <table class="log-table">
-                  <thead><tr><th>Waktu</th><th>Sistem / Aksi</th><th>Status</th></tr></thead>
-                  <tbody id="log-list">
-                    <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px 0;">Sistem standby. Belum ada aktivitas.</td></tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="panel-body" style="padding: 0;"> <!-- Remove padding for flush table -->
+              <table class="log-table">
+                <thead><tr><th>Waktu</th><th>Sistem/Aksi</th><th>Sts</th></tr></thead>
+                <tbody id="log-list">
+                  <tr><td colspan="3" style="text-align: center; color: var(--c-text-muted); padding: 30px 10px;">Standby. Belum ada aktivitas.</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- DEVICE CONFIG -->
+      <!-- VIEW: CONFIG -->
       <div id="view-config" class="view-section">
-        <div class="panel glass-panel">
-          <div class="panel-header"><div class="panel-title">Konfigurasi Hardware</div></div>
-          <div class="panel-body">
-            <div style="text-align: center; padding: 40px 10px;">
-              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" style="width:48px;height:48px;opacity:0.5;margin-bottom:15px;display:inline-block;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-              <h3>Sistem Terkunci (Mode Keamanan)</h3>
-              <p style="color:var(--text-secondary); margin-top: 8px; font-size: 0.9rem;">Modul ESP32 beroperasi dalam mode Over-The-Air (OTA). Mapping pinout fisik (GPIO 15, 2, 4, 16) dikunci dari web.</p>
-            </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Sistem Keamanan Hardware</div></div>
+          <div class="panel-body" style="justify-content: center; align-items: center; text-align: center;">
+             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" style="width:48px;height:48px;color:var(--c-text-muted);margin-bottom:15px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+             <h3 style="font-size: 1.1rem; color: var(--c-text-main);">Sistem Terkunci (Mode OTA)</h3>
+             <p style="color:var(--c-text-muted); font-size: 0.85rem; max-width: 300px; margin-top: 10px;">Mapping pinout fisik (GPIO 15, 2, 4, 16) dikunci dari web demi keamanan arsitektur perangkat keras.</p>
           </div>
         </div>
       </div>
@@ -537,9 +432,7 @@
 
 <script>
 // --- UI BEHAVIORS ---
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('mobile-open');
-}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
 
 function toggleTheme() {
   const body = document.body;
@@ -556,9 +449,7 @@ function switchTab(viewId, element, breadcrumbName) {
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
   document.getElementById('view-' + viewId).classList.add('active-view');
   document.getElementById('breadcrumb-text').innerText = breadcrumbName;
-  if(window.innerWidth <= 1024) {
-    document.getElementById('sidebar').classList.remove('mobile-open');
-  }
+  if(window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('mobile-open');
 }
 
 // --- AUTH & INIT ---
@@ -567,8 +458,7 @@ let intervalSync = null;
 
 function cekLogin() {
   if (document.getElementById('password-input').value === PASSWORD_BENAR) {
-    localStorage.setItem('esp32_logged_in', 'true');
-    initApp();
+    localStorage.setItem('esp32_logged_in', 'true'); initApp();
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('password-input').value = '';
@@ -580,9 +470,7 @@ function logout() { localStorage.removeItem('esp32_logged_in'); location.reload(
 function initApp() {
   document.getElementById('login-portal').style.display = 'none';
   document.getElementById('app-content').style.display = 'flex';
-  loadState(); 
-  initGrid(); 
-  ambilData();
+  loadState(); initGrid(); ambilData();
   intervalSync = setInterval(ambilData, 1000);
 }
 
@@ -595,9 +483,7 @@ window.onload = () => {
 const FIREBASE_URL = "https://espserver-79064-default-rtdb.firebaseio.com/relay.json";
 const pins = [15, 2, 4, 16];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
-let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false;
-
-let fullLogs = []; 
+let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false, fullLogs = []; 
 
 let activeTimers = {
   1: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
@@ -612,16 +498,13 @@ function loadState() {
   if(savedTimers) { try { activeTimers = JSON.parse(savedTimers); } catch(e) {} }
 }
 
-setInterval(() => {
-  document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID') + ' WIB';
-}, 1000);
+setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID') + ' WIB'; }, 1000);
 
 // --- LOGGING & PDF EXPORT ---
 function addLog(channel, isOn, source) {
   const dateObj = new Date();
   const time = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const fullDate = dateObj.toLocaleDateString('id-ID') + " " + time; 
-  
   fullLogs.unshift({ time, fullDate, channel, isOn, source });
   if (fullLogs.length > 50) fullLogs.pop();
   renderLogs();
@@ -631,55 +514,27 @@ function renderLogs() {
   const logList = document.getElementById('log-list');
   if (fullLogs.length === 0) return;
   let html = "";
-  fullLogs.slice(0, 5).forEach(log => {
-    let sourceFormat = log.source.includes('Timer') || log.source.includes('Jadwal') 
-                       ? `<span style="color:var(--accent)">${log.source}</span>` 
-                       : log.source;
-    html += `
-      <tr>
-        <td style="color: var(--text-secondary);">${log.time}</td>
-        <td><strong>CH-${log.channel === 'ALL' ? 'ALL' : '0'+log.channel}</strong> <span style="font-size:0.7rem; color:var(--text-muted); margin-left:6px;">via ${sourceFormat}</span></td>
-        <td><span class="log-badge ${log.isOn ? 'on' : 'off'}">${log.isOn ? 'ON' : 'OFF'}</span></td>
-      </tr>
-    `;
+  // Tampilkan lebih banyak log karena area table sekarang bisa di-scroll
+  fullLogs.slice(0, 15).forEach(log => {
+    let sourceFormat = (log.source.includes('Timer') || log.source.includes('Jadwal')) ? `<span style="color:var(--c-electric)">${log.source}</span>` : log.source;
+    let ch = log.channel === 'ALL' ? 'ALL' : 'CH-0'+log.channel;
+    html += `<tr>
+      <td style="color:var(--c-text-muted);">${log.time}</td>
+      <td><strong>${ch}</strong> <span style="font-size:0.7rem; color:var(--c-text-muted); margin-left:4px;">${sourceFormat}</span></td>
+      <td><span class="log-badge ${log.isOn ? 'on' : 'off'}">${log.isOn ? 'ON' : 'OFF'}</span></td>
+    </tr>`;
   });
   logList.innerHTML = html;
 }
 
 function exportLogsPDF() {
-  if (fullLogs.length === 0) { alert("Belum ada log aktivitas untuk diunduh."); return; }
-  
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  
-  doc.setFontSize(16);
-  doc.setTextColor(40);
-  doc.text("Laporan Audit Trail: IoT Smart Relay", 14, 20);
-  
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text("Waktu Unduh: " + new Date().toLocaleString('id-ID') + " WIB", 14, 28);
-  doc.text("Admin: Surya Pramuditya P. (B26006)", 14, 34);
-
-  const tableColumn = ["Waktu / Tanggal", "Channel Relay", "Sistem / Sumber", "Status Akhir"];
-  const tableRows = fullLogs.map(log => [
-    log.fullDate,
-    log.channel === 'ALL' ? 'ALL CHANNELS' : `CH-0${log.channel}`,
-    log.source,
-    log.isOn ? "AKTIF (ON)" : "MATI (OFF)"
-  ]);
-
-  doc.autoTable({
-    head: [tableColumn],
-    body: tableRows,
-    startY: 42,
-    theme: 'grid',
-    styles: { fontSize: 9, font: 'helvetica' },
-    headStyles: { fillColor: [212, 175, 55], textColor: 255 },
-    alternateRowStyles: { fillColor: [245, 245, 245] }
-  });
-
-  doc.save(`IoT_Audit_Logs_${new Date().getTime()}.pdf`);
+  if (fullLogs.length === 0) { alert("Belum ada log."); return; }
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  doc.setFontSize(16); doc.text("Laporan Audit Trail: IoT Smart Relay", 14, 20);
+  doc.setFontSize(10); doc.text("Waktu Unduh: " + new Date().toLocaleString('id-ID') + " WIB", 14, 28);
+  const tableRows = fullLogs.map(log => [log.fullDate, log.channel === 'ALL' ? 'ALL' : `CH-0${log.channel}`, log.source, log.isOn ? "ON" : "OFF"]);
+  doc.autoTable({ head: [["Waktu / Tanggal", "Channel Relay", "Sistem / Sumber", "Status"]], body: tableRows, startY: 35, theme: 'grid', styles: { fontSize: 9 }, headStyles: { fillColor: [0, 240, 255], textColor: 0 } });
+  doc.save(`IoT_Logs_${new Date().getTime()}.pdf`);
 }
 
 // --- CORE UI LOGIC ---
@@ -689,29 +544,19 @@ function initGrid() {
     html += `
     <div class="relay-card" id="relay-item-${i}">
       <div class="rc-top">
-        <div class="rc-icon">
-          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-        </div>
-        <button class="btn-icon-small" onclick="openTimerModal(${i})" title="Set Timer">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        </button>
+        <div class="rc-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div>
+        <button class="btn-icon-small" onclick="openTimerModal(${i})" title="Set Timer"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button>
       </div>
       <div class="rc-title">
-        <h5>Channel 0${i}</h5>
-        <p>GPIO ${pins[i-1]} • AC Load</p>
+        <h5>Channel 0${i}</h5><p>GPIO ${pins[i-1]} • AC Load</p>
         <div id="timer-display-${i}" class="timer-display">
            <span class="timer-text" id="timer-text-${i}"></span>
-           <button class="btn-cancel-timer" onclick="cancelTimer(${i})" title="Batal">
-              <svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="3" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-           </button>
+           <button class="btn-cancel-timer" onclick="cancelTimer(${i})"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="3" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
       </div>
       <div class="rc-bottom">
         <div class="state-text" id="state-text-${i}">OFF</div>
-        <label class="switch">
-          <input type="checkbox" id="relay-toggle-${i}" onchange="toggle(${i})">
-          <span class="slider"></span>
-        </label>
+        <label class="switch"><input type="checkbox" id="relay-toggle-${i}" onchange="toggle(${i})"><span class="slider"></span></label>
       </div>
     </div>`;
   }
@@ -721,41 +566,26 @@ function initGrid() {
 function updateGrid(){
   let activeCount = 0;
   for(let i=1; i<=4; i++){
-    let on = data['relay'+i] == 1;
-    if (on) activeCount++;
-    
-    let item = document.getElementById(`relay-item-${i}`);
-    let toggleInput = document.getElementById(`relay-toggle-${i}`);
-    let stateTxt = document.getElementById(`state-text-${i}`);
-    
+    let on = data['relay'+i] == 1; if (on) activeCount++;
+    let item = document.getElementById(`relay-item-${i}`), toggleInput = document.getElementById(`relay-toggle-${i}`), stateTxt = document.getElementById(`state-text-${i}`);
     if (item && toggleInput && stateTxt) {
-        if (on) { item.classList.add('active'); stateTxt.innerText = "ON"; } 
-        else { item.classList.remove('active'); stateTxt.innerText = "OFF"; }
+        if (on) { item.classList.add('active'); stateTxt.innerText = "ON"; } else { item.classList.remove('active'); stateTxt.innerText = "OFF"; }
         if (toggleInput.checked !== on) toggleInput.checked = on;
     }
-
-    let timerDisp = document.getElementById(`timer-display-${i}`);
-    let timerText = document.getElementById(`timer-text-${i}`);
-    
+    let timerDisp = document.getElementById(`timer-display-${i}`), timerText = document.getElementById(`timer-text-${i}`);
     if (timerDisp && timerText) {
         let t = activeTimers[i];
         if (t.active) {
             timerDisp.style.display = "flex";
             if (t.mode === 'countdown') {
-                let rem = t.endTime - Date.now();
-                let actionText = t.action === 1 ? 'ON' : 'OFF';
+                let rem = t.endTime - Date.now(), actionText = t.action === 1 ? 'ON' : 'OFF';
                 if (rem <= 0) { timerText.innerText = `00:00 ➔ ${actionText}`; } 
                 else {
-                    let m = Math.floor(rem / 60000).toString().padStart(2, '0');
-                    let s = Math.floor((rem % 60000) / 1000).toString().padStart(2, '0');
-                    timerText.innerText = `⏳ ${m}:${s} ➔ ${actionText}`;
+                    let m = Math.floor(rem / 60000).toString().padStart(2, '0'), s = Math.floor((rem % 60000) / 1000).toString().padStart(2, '0');
+                    timerText.innerText = `${m}:${s} ➔ ${actionText}`;
                 }
-            } else if (t.mode === 'schedule') {
-                timerText.innerText = `⏰ ${t.startStr} ➔ ${t.finishStr}`;
-            }
-        } else {
-            timerDisp.style.display = "none";
-        }
+            } else if (t.mode === 'schedule') { timerText.innerText = `${t.startStr} ➔ ${t.finishStr}`; }
+        } else { timerDisp.style.display = "none"; }
     }
   }
   document.getElementById('active-count').innerText = `${activeCount} / 4`;
@@ -763,15 +593,11 @@ function updateGrid(){
 
 async function ambilData(){
   try{
-    let res = await fetch(FIREBASE_URL);
-    if(!res.ok) throw new Error("HTTP Error");
+    let res = await fetch(FIREBASE_URL); if(!res.ok) throw new Error("HTTP Error");
     let j = await res.json();
     if(j) { 
       for(let i=1; i<=4; i++) {
-        if (data['relay'+i] !== j['relay'+i] && j['relay'+i] !== undefined) {
-             data['relay'+i] = j['relay'+i];
-             addLog(i, j['relay'+i] === 1, 'Hardware Sinkron');
-        }
+        if (data['relay'+i] !== j['relay'+i] && j['relay'+i] !== undefined) { data['relay'+i] = j['relay'+i]; addLog(i, j['relay'+i] === 1, 'Hardware Sync'); }
       }
       if (j.heartbeat !== undefined) {
         if (lastHeartbeatValue === null) { lastHeartbeatValue = j.heartbeat; lastHeartbeatTime = Date.now(); } 
@@ -779,138 +605,74 @@ async function ambilData(){
       }
     }
     
-    document.getElementById('db-status').innerText = 'Terhubung';
-    document.getElementById('db-badge').innerText = 'Enkripsi Aktif';
+    document.getElementById('db-status').innerText = 'Connected';
+    document.getElementById('db-badge').innerText = 'Secure';
     document.getElementById('db-badge').className = 'kpi-status status-ok';
     
-    let timeDiff = Date.now() - lastHeartbeatTime;
-    if (timeDiff > 12000) espIsOnline = false;
+    let timeDiff = Date.now() - lastHeartbeatTime; if (timeDiff > 12000) espIsOnline = false;
 
     if (!espIsOnline && timeDiff <= 12000) {
-      document.getElementById('esp-status').innerText = 'Analisa...';
-      document.getElementById('esp-badge').innerText = 'Menunggu';
-      document.getElementById('esp-badge').className = 'kpi-status status-warn';
+      document.getElementById('esp-status').innerText = 'Check...'; document.getElementById('esp-badge').innerText = 'Wait'; document.getElementById('esp-badge').className = 'kpi-status status-warn';
     } else if (espIsOnline) {
-      document.getElementById('esp-status').innerText = 'Online';
-      document.getElementById('esp-badge').innerText = 'Aktif';
-      document.getElementById('esp-badge').className = 'kpi-status status-ok';
+      document.getElementById('esp-status').innerText = 'Online'; document.getElementById('esp-badge').innerText = 'Active'; document.getElementById('esp-badge').className = 'kpi-status status-ok';
     } else {
-      document.getElementById('esp-status').innerText = 'Offline';
-      document.getElementById('esp-badge').innerText = 'Terputus';
-      document.getElementById('esp-badge').className = 'kpi-status status-err';
+      document.getElementById('esp-status').innerText = 'Offline'; document.getElementById('esp-badge').innerText = 'Lost'; document.getElementById('esp-badge').className = 'kpi-status status-err';
     }
     updateGrid();
   }catch(e){
-    document.getElementById('db-status').innerText = 'Error';
-    document.getElementById('db-badge').innerText = 'Gagal';
-    document.getElementById('db-badge').className = 'kpi-status status-err';
+    document.getElementById('db-status').innerText = 'Error'; document.getElementById('db-badge').innerText = 'Fail'; document.getElementById('db-badge').className = 'kpi-status status-err';
   }
 }
 
 async function kirim(){
   let payload = { relay1: data.relay1, relay2: data.relay2, relay3: data.relay3, relay4: data.relay4 };
-  updateGrid();
-  await fetch(FIREBASE_URL, {method:'PATCH', body: JSON.stringify(payload)});
+  updateGrid(); await fetch(FIREBASE_URL, {method:'PATCH', body: JSON.stringify(payload)});
 }
 
-function toggle(num){
-  data['relay'+num] = data['relay'+num] == 1 ? 0 : 1;
-  addLog(num, data['relay'+num] === 1, 'Web UI');
-  kirim();  
-}
+function toggle(num){ data['relay'+num] = data['relay'+num] == 1 ? 0 : 1; addLog(num, data['relay'+num] === 1, 'Web UI'); kirim(); }
+function setAll(val){ for(let i=1;i<=4;i++) data['relay'+i] = val; addLog('ALL', val === 1, 'Master'); kirim(); }
 
-function setAll(val){
-  for(let i=1;i<=4;i++) data['relay'+i] = val;
-  addLog('ALL', val === 1, 'Master Command');
-  kirim();
-}
-
-let currentModalRelay = null;
-let currentTimerMode = 'countdown'; 
+let currentModalRelay = null, currentTimerMode = 'countdown'; 
 
 function switchTimerTab(mode) {
   currentTimerMode = mode;
-  document.getElementById('tab-countdown').classList.remove('active');
-  document.getElementById('tab-schedule').classList.remove('active');
-  document.getElementById('body-countdown').style.display = 'none';
-  document.getElementById('body-schedule').style.display = 'none';
-  
-  document.getElementById(`tab-${mode}`).classList.add('active');
-  document.getElementById(`body-${mode}`).style.display = 'block';
+  document.getElementById('tab-countdown').classList.remove('active'); document.getElementById('tab-schedule').classList.remove('active');
+  document.getElementById('body-countdown').style.display = 'none'; document.getElementById('body-schedule').style.display = 'none';
+  document.getElementById(`tab-${mode}`).classList.add('active'); document.getElementById(`body-${mode}`).style.display = 'block';
 }
 
-function openTimerModal(num) {
-  currentModalRelay = num;
-  document.getElementById('modal-relay-num').innerText = num;
-  switchTimerTab('countdown'); 
-  document.getElementById('timer-modal').style.display = 'flex';
-}
-
+function openTimerModal(num) { currentModalRelay = num; document.getElementById('modal-relay-num').innerText = num; switchTimerTab('countdown'); document.getElementById('timer-modal').style.display = 'flex'; }
 function closeModal() { document.getElementById('timer-modal').style.display = 'none'; }
 
 function applyTimer() {
   if (currentTimerMode === 'countdown') {
-    let mins = parseInt(document.getElementById('timer-duration').value);
-    let targetAction = parseInt(document.getElementById('timer-action').value);
+    let mins = parseInt(document.getElementById('timer-duration').value), targetAction = parseInt(document.getElementById('timer-action').value);
     if(isNaN(mins) || mins <= 0) { alert("Durasi tidak valid!"); return; }
-    
-    let initialState = (targetAction === 1) ? 0 : 1;
-    data['relay'+currentModalRelay] = initialState;
-    
-    activeTimers[currentModalRelay] = {
-       active: true, mode: 'countdown', endTime: Date.now() + (mins * 60000), action: targetAction
-    };
-    addLog(currentModalRelay, initialState === 1, `Auto-Start Timer`);
-    kirim(); 
-    
+    let initialState = (targetAction === 1) ? 0 : 1; data['relay'+currentModalRelay] = initialState;
+    activeTimers[currentModalRelay] = { active: true, mode: 'countdown', endTime: Date.now() + (mins * 60000), action: targetAction };
+    addLog(currentModalRelay, initialState === 1, `Auto-Start Timer`); kirim(); 
   } else if (currentTimerMode === 'schedule') {
-    let startVal = document.getElementById('sch-start').value;
-    let finishVal = document.getElementById('sch-finish').value;
-    let actStart = parseInt(document.getElementById('sch-action').value);
+    let startVal = document.getElementById('sch-start').value, finishVal = document.getElementById('sch-finish').value, actStart = parseInt(document.getElementById('sch-action').value);
     if(!startVal || !finishVal) { alert("Isi waktu mulai & selesai!"); return; }
-    
-    activeTimers[currentModalRelay] = {
-       active: true, mode: 'schedule', startStr: startVal, finishStr: finishVal,
-       action: actStart, finishAct: actStart === 1 ? 0 : 1, sExec: false, fExec: false
-    };
+    activeTimers[currentModalRelay] = { active: true, mode: 'schedule', startStr: startVal, finishStr: finishVal, action: actStart, finishAct: actStart === 1 ? 0 : 1, sExec: false, fExec: false };
     addLog(currentModalRelay, actStart === 1, `Jadwal Disimpan`);
   }
   saveState(); closeModal(); updateGrid();
 }
-
-function cancelTimer(num) {
-  activeTimers[num].active = false;
-  addLog(num, data['relay'+num] === 1, 'Timer Dibatalkan');
-  saveState(); updateGrid();
-}
+function cancelTimer(num) { activeTimers[num].active = false; addLog(num, data['relay'+num] === 1, 'Timer Batal'); saveState(); updateGrid(); }
 
 setInterval(() => {
-  let needsUpdate = false;
-  let now = new Date();
-  let currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
+  let needsUpdate = false, now = new Date(), currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
   for(let i=1; i<=4; i++) {
      let t = activeTimers[i];
      if(t.active) {
         needsUpdate = true;
         if (t.mode === 'countdown') {
-           if(now.getTime() >= t.endTime) {
-              data['relay'+i] = t.action; t.active = false; 
-              addLog(i, data['relay'+i] === 1, 'Otomatisasi Selesai');
-              kirim(); saveState(); 
-           }
+           if(now.getTime() >= t.endTime) { data['relay'+i] = t.action; t.active = false; addLog(i, data['relay'+i] === 1, 'Auto Selesai'); kirim(); saveState(); }
         } 
         else if (t.mode === 'schedule') {
-           if (currentHHMM === t.startStr && !t.sExec) {
-              data['relay'+i] = t.action; t.sExec = true;
-              addLog(i, data['relay'+i] === 1, 'Jadwal Dimulai');
-              kirim(); saveState(); 
-           }
-           if (currentHHMM === t.finishStr && !t.fExec && t.sExec) {
-              data['relay'+i] = t.finishAct; t.fExec = true;
-              addLog(i, data['relay'+i] === 1, 'Jadwal Berakhir');
-              kirim(); saveState(); 
-           }
+           if (currentHHMM === t.startStr && !t.sExec) { data['relay'+i] = t.action; t.sExec = true; addLog(i, data['relay'+i] === 1, 'Jadwal Mulai'); kirim(); saveState(); }
+           if (currentHHMM === t.finishStr && !t.fExec && t.sExec) { data['relay'+i] = t.finishAct; t.fExec = true; addLog(i, data['relay'+i] === 1, 'Jadwal Akhir'); kirim(); saveState(); }
            if (t.sExec && t.fExec) { t.active = false; saveState(); }
         }
      }
