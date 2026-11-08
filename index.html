@@ -21,7 +21,6 @@
     --text-secondary: #8b8d98;
     --text-muted: #5e606b;
     
-    /* Accents */
     --accent: #d4af37;
     --accent-hover: #f0d588;
     --accent-bg: rgba(212, 175, 55, 0.1);
@@ -103,7 +102,7 @@
   
   .sidebar {
     width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; position: fixed; height: 100vh; transition: 0.3s;
+    display: flex; flex-direction: column; position: fixed; height: 100vh; transition: 0.3s; z-index: 50;
   }
   .brand { padding: 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.2rem; border-bottom: 1px solid var(--border); }
   .brand svg { color: var(--accent); }
@@ -183,7 +182,7 @@
   .panel-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
   .panel-body { padding: 24px; }
   
-  /* --- NEW RELAY CARDS (SMART HOME STYLE) --- */
+  /* --- CARDS GRID --- */
   .relay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   
   .relay-card {
@@ -221,7 +220,6 @@
   }
   .btn-icon-small:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); }
 
-  /* Bigger switch for easier control */
   .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--switch-bg); transition: .3s; border-radius: 34px; }
@@ -308,8 +306,6 @@
     .kpi-grid, .dashboard-grid { grid-template-columns: 1fr; }
     .project-banner { padding: 25px; height: auto; }
   }
-  
-  /* Layout Grid Kotak diubah ke 1 kolom vertikal besar jika di HP */
   @media (max-width: 768px) {
     .relay-grid { grid-template-columns: 1fr; }
   }
@@ -486,9 +482,7 @@
               </div>
               
               <!-- GRID RELAY KOTAK PINTAR -->
-              <div class="relay-grid" id="grid">
-                <!-- Dirender via JS initGrid() -->
-              </div>
+              <div class="relay-grid" id="grid"></div>
               
             </div>
           </div>
@@ -587,6 +581,8 @@ function logout() { localStorage.removeItem('esp32_logged_in'); location.reload(
 function initApp() {
   document.getElementById('login-portal').style.display = 'none';
   document.getElementById('app-content').style.display = 'flex';
+  
+  loadTimers(); // MUAT DATA TIMER DARI BROWSER
   initGrid(); 
   ambilData();
   intervalSync = setInterval(ambilData, 1000);
@@ -603,12 +599,28 @@ const pins = [15, 2, 4, 16];
 let data = {relay1:0, relay2:0, relay3:0, relay4:0};
 let lastHeartbeatValue = null, lastHeartbeatTime = Date.now(), espIsOnline = false, logs = [];
 
+// Struktur Status Timer (Default)
 let activeTimers = {
   1: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
   2: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
   3: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false },
   4: { active: false, mode: 'countdown', endTime: 0, action: 1, startStr: '', finishStr: '', finishAct: 0, sExec: false, fExec: false }
 };
+
+// --- FUNGSI SAVE/LOAD (LOCAL STORAGE) ---
+function saveTimers() {
+  localStorage.setItem('esp32_timers_state', JSON.stringify(activeTimers));
+}
+function loadTimers() {
+  const saved = localStorage.getItem('esp32_timers_state');
+  if(saved) {
+    try {
+      activeTimers = JSON.parse(saved);
+    } catch(e) {
+      console.error("Gagal memuat timer yang tersimpan", e);
+    }
+  }
+}
 
 setInterval(() => {
   document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID') + ' WIB';
@@ -637,7 +649,6 @@ function renderLogs() {
   logList.innerHTML = html;
 }
 
-// BENTUK KARTU (CARD) YANG BARU
 function initGrid() {
   let html = "";
   for(let i=1; i<=4; i++) {
@@ -851,6 +862,8 @@ function applyTimer() {
     };
     addLog(currentModalRelay, actStart === 1, `Set Jadwal`);
   }
+  
+  saveTimers(); // SIMPAN PERUBAHAN KE MEMORI BROWSER
   closeModal();
   updateGrid();
 }
@@ -858,12 +871,15 @@ function applyTimer() {
 function cancelTimer(num) {
   activeTimers[num].active = false;
   addLog(num, data['relay'+num] === 1, 'Timer Dibatalkan');
+  saveTimers(); // SIMPAN PERUBAHAN KE MEMORI BROWSER
   updateGrid();
 }
 
+// LOOP EKSEKUSI TIMER
 setInterval(() => {
   let needsUpdate = false;
   let now = new Date();
+  
   let currentHHMM = now.getHours().toString().padStart(2, '0') + ":" + 
                     now.getMinutes().toString().padStart(2, '0');
 
@@ -871,12 +887,15 @@ setInterval(() => {
      let t = activeTimers[i];
      if(t.active) {
         needsUpdate = true;
+        
         if (t.mode === 'countdown') {
+           // Mengeksekusi (Atau mengejar ketinggalan) jika waktu melebihi batas
            if(now.getTime() >= t.endTime) {
               data['relay'+i] = t.action;
               t.active = false; 
               addLog(i, data['relay'+i] === 1, 'Timer Selesai');
               kirim();
+              saveTimers(); // SIMPAN STATUS SELESAI
            }
         } 
         else if (t.mode === 'schedule') {
@@ -884,13 +903,18 @@ setInterval(() => {
               data['relay'+i] = t.action; t.sExec = true;
               addLog(i, data['relay'+i] === 1, 'Jadwal Mulai');
               kirim();
+              saveTimers(); // SIMPAN STATUS MULAI
            }
            if (currentHHMM === t.finishStr && !t.fExec && t.sExec) {
               data['relay'+i] = t.finishAct; t.fExec = true;
               addLog(i, data['relay'+i] === 1, 'Jadwal Selesai');
               kirim();
+              saveTimers(); // SIMPAN STATUS SELESAI
            }
-           if (t.sExec && t.fExec) t.active = false;
+           if (t.sExec && t.fExec) {
+              t.active = false;
+              saveTimers();
+           }
         }
      }
   }
